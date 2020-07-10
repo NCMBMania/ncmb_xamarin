@@ -17,12 +17,18 @@ namespace ncmb_xamarin
 
         public JObject post(string name, JObject fields)
         {
-            return exec("POST", name, fields: fields);
+            return exec("POST", name, fields);
         }
 
         public JObject put(string name, string objectId, JObject fields)
         {
             return exec("PUT", name, fields, objectId);
+        }
+
+        public Boolean delete(string name, string objectId)
+        {
+            var response = exec("DELETE", name, null, objectId);
+            return response.Count == 0;
         }
 
         public JObject exec(string method, string name, JObject fields = null, string objectId = null, JObject queries = null, string path = null)
@@ -36,15 +42,18 @@ namespace ncmb_xamarin
                         fields.Remove(key);
                 }
             }
-            foreach (KeyValuePair<string, JToken> key in fields)
+            if (fields != null)
             {
-               if (key.Value.Type == JTokenType.Date)
+                foreach (KeyValuePair<string, JToken> key in fields)
                 {
-                    var date = new JObject();
-                    date["__type"] = "Date";
-                    date["iso"] = ((DateTime) key.Value).ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-                    fields[key.Key] = date;
-                } 
+                    if (key.Value.Type == JTokenType.Date)
+                    {
+                        var date = new JObject();
+                        date["__type"] = "Date";
+                        date["iso"] = ((DateTime)key.Value).ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+                        fields[key.Key] = date;
+                    }
+                }
             }
 
             var signature = s.generate(method, name, time, objectId, queries, path);
@@ -67,7 +76,8 @@ namespace ncmb_xamarin
                 client.Headers[key] = headers[key].ToString();
             }
             client.Encoding = Encoding.UTF8;
-            var response = client.UploadString(url, fields.ToString());
+            var response = client.UploadString(url, method, fields != null ? fields.ToString(): "");
+            if (method == "DELETE" && response == "") return new JObject();
             return JObject.Parse(response);
         }
     }

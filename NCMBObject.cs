@@ -1,20 +1,23 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace ncmb_xamarin
 {
     public class NCMBObject
     {
-        private string _name;
+        public string name;
         private JObject _fields;
+        private Hashtable _objects;
         private NCMB _ncmb;
         
         public NCMBObject(NCMB ncmb, string name)
         {
             _ncmb = ncmb;
-            _name = name;
+            this.name = name;
             _fields = new JObject();
+            _objects = new Hashtable();
         }
 
         public NCMBObject set(string key, string value)
@@ -52,10 +55,15 @@ namespace ncmb_xamarin
             _fields[key] = value;
             return this;
         }
-
-        public JToken get(string key)
+        public NCMBObject set(string key, NCMBObject value)
         {
-            return _fields.GetValue(key);
+            _objects.Add(key, value);
+            return this;
+        }
+
+        public Object get(string key)
+        {
+            return _objects.ContainsKey(key) ? _objects[key] : _fields.GetValue(key);
         }
 
         public NCMBObject sets(JObject query)
@@ -96,10 +104,37 @@ namespace ncmb_xamarin
         {
             NCMBRequest r = new NCMBRequest(_ncmb);
             var response = _fields.ContainsKey("objectId") ?
-                r.put(_name, (string) _fields.GetValue("objectId"), (JObject) _fields.DeepClone()) :
-                r.post(_name, (JObject)_fields.DeepClone());
+                r.put(name, (string) _fields.GetValue("objectId"), getData()) :
+                r.post(name, getData());
             sets(response);
             return this;
+        }
+
+        public Boolean delete()
+        {
+            NCMBRequest r = new NCMBRequest(_ncmb);
+            return r.delete(name, (string)_fields.GetValue("objectId"));
+        }
+
+        private JObject getData()
+        {
+            var results = new JObject();
+            Console.WriteLine(_objects);
+            foreach (DictionaryEntry key in _objects)
+            {
+                var data = new JObject();
+                var obj = (NCMBObject) key.Value;
+                data["__type"] = "Pointer";
+                data.Add("className", obj.name);
+                var objectId = obj.get("objectId");
+                data.Add("objectId", objectId.ToString());
+                results[key.Key] = data;
+            }
+            foreach (KeyValuePair<string, JToken> key in _fields)
+            {
+                results[key.Key] = key.Value;
+            }
+            return (JObject) results.DeepClone();
         }
     }
 }

@@ -17,5 +17,10 @@ namespace ncmb_xamarin
         {
             return new NCMBObject(this, name);
         }
+
+        public NCMBQuery Query(string name)
+        {
+            return new NCMBQuery(this, name);
+        }
     }
 }

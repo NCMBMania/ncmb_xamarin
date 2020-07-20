@@ -60,7 +60,6 @@ namespace ncmb_xamarin
             _objects.Add(key, value);
             return this;
         }
-
         public Object get(string key)
         {
             return _objects.ContainsKey(key) ? _objects[key] : _fields.GetValue(key);
@@ -84,9 +83,11 @@ namespace ncmb_xamarin
                     case JTokenType.Date:
                         this.set(key.Key, (DateTime)key.Value);
                         break;
+                    case JTokenType.Array:
+                        this.set(key.Key, (JArray) key.Value);
+                        break;
                     default:
                         var obj = (JObject)key.Value;
-                        Console.WriteLine(obj);
                         if (obj.ContainsKey("__type") && ((string) obj["__type"]) == "Date")
                         {
                             this.set(key.Key, DateTime.Parse((string) obj["iso"]));

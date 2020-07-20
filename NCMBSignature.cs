@@ -53,11 +53,13 @@ namespace ncmb_xamarin
         public string url(string class_name, string objectId = null, JObject queries = null, string definePath = null)
         {
             var queryList = new List<string>();
-            if (queries != null)
+            if (queries != null && queries.Count >= 0)
             {
                 foreach (KeyValuePair<string, JToken> key in queries)
                 {
-                    queryList.Add($"{key.Key}=${Uri.EscapeDataString(key.Value.ToString(Newtonsoft.Json.Formatting.None))}");
+                    var str = key.Value.ToString(Newtonsoft.Json.Formatting.None);
+                    if (str == "{}") continue;
+                    queryList.Add($"{key.Key}={Uri.EscapeDataString(str)}");
                 }
 
             }
@@ -75,7 +77,9 @@ namespace ncmb_xamarin
             {
                 foreach (KeyValuePair <string, JToken> key in queries)
                 {
-                    _base_info.Add(key.Key, Uri.EscapeDataString(key.Value.ToString(Newtonsoft.Json.Formatting.None)));
+                    var obj = key.Value.ToString(Newtonsoft.Json.Formatting.None);
+                    if (obj == "{}") continue;
+                    _base_info.Add(key.Key, Uri.EscapeDataString(obj));
                 }
                 
             }

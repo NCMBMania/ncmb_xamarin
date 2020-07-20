@@ -66,6 +66,8 @@ namespace NCMBClient
             return _objects.ContainsKey(key) ? _objects[key] : _fields.GetValue(key);
         }
 
+        public T Get<T>(string key) => (T)Get(key);
+
         public NCMBObject Sets(JObject query)
         {
             foreach (KeyValuePair<string, JToken> key in query)

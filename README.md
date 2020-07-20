@@ -38,18 +38,20 @@ hello.Save();
 
 #### データのアクセス
 
-返却値は JToken なので、必要な型にキャストしてください。
+返却値は object 型なので、必要な型にキャストするか型引数を指定するバージョンを使用してください。
 
 **文字列型の場合**
 
 ```cs
-(string) hello.Get("objectId")
+var str1 = (string) hello.Get("objectId")
+var str2 = hello.Get<string>("objectId");
 ```
 
 **配列の場合**
 
 ```cs
-var ary = (JArray) hello.Get("array");
+var ary1 = (JArray) hello.Get("array");
+var ary2 = hello.Get<JArrat>("array");
 ```
 
 ## ライセンス

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Net;
 
-namespace ncmb_xamarin
+namespace NCMBClient
 {
     public class NCMBRequest
     {

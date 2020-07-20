@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Collections;
 
-namespace ncmb_xamarin
+namespace NCMBClient
 {
     public class NCMBObject
     {

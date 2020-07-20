@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json.Linq;
 
-namespace ncmb_xamarin
+namespace NCMBClient
 {
     public class NCMBSignature
     {

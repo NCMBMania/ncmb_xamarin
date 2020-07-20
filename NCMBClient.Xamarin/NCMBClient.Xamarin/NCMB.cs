@@ -1,5 +1,5 @@
 ﻿using System;
-namespace ncmb_xamarin
+namespace NCMBClient
 {
     public class NCMB
     {

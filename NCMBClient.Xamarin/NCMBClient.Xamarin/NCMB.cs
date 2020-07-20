@@ -3,14 +3,14 @@ namespace NCMBClient
 {
     public class NCMB
     {
-        public string application_key;
-        public string client_key;
-        public string sessionToken;
+        public string ApplicationKey { get; }
+        public string ClientKey { get; }
+        public string SessionToken { get; }
 
-        public NCMB(string application_key, string client_key)
+        public NCMB(string applicationKey, string clientKey)
         {
-            this.application_key = application_key;
-            this.client_key = client_key;
+            this.ApplicationKey = applicationKey;
+            this.ClientKey = clientKey;
         }
 
         public NCMBObject Object(string name)

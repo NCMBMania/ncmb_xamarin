@@ -7,17 +7,17 @@ namespace NCMBClient
 {
     public class NCMBObject
     {
-        public string name;
+        public string Name { get; }
         private JObject _fields;
-        private Hashtable _objects;
+        private Dictionary<string, object> _objects;
         private NCMB _ncmb;
         
         public NCMBObject(NCMB ncmb, string name)
         {
             _ncmb = ncmb;
-            this.name = name;
+            this.Name = name;
             _fields = new JObject();
-            _objects = new Hashtable();
+            _objects = new Dictionary<string, object>();
         }
 
         public NCMBObject set(string key, string value)
@@ -104,8 +104,8 @@ namespace NCMBClient
         {
             NCMBRequest r = new NCMBRequest(_ncmb);
             var response = _fields.ContainsKey("objectId") ?
-                r.put(name, (string) _fields.GetValue("objectId"), getData()) :
-                r.post(name, getData());
+                r.put(Name, (string) _fields.GetValue("objectId"), getData()) :
+                r.post(Name, getData());
             sets(response);
             return this;
         }
@@ -113,19 +113,19 @@ namespace NCMBClient
         public Boolean delete()
         {
             NCMBRequest r = new NCMBRequest(_ncmb);
-            return r.delete(name, (string)_fields.GetValue("objectId"));
+            return r.delete(Name, (string)_fields.GetValue("objectId"));
         }
 
         private JObject getData()
         {
             var results = new JObject();
             Console.WriteLine(_objects);
-            foreach (DictionaryEntry key in _objects)
+            foreach (var key in _objects)
             {
                 var data = new JObject();
                 var obj = (NCMBObject) key.Value;
                 data["__type"] = "Pointer";
-                data.Add("className", obj.name);
+                data.Add("className", obj.Name);
                 var objectId = obj.get("objectId");
                 data.Add("objectId", objectId.ToString());
                 results[key.Key] = data;

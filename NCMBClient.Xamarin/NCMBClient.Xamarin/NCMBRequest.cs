@@ -33,7 +33,7 @@ namespace NCMBClient
 
         public JObject exec(string method, string name, JObject fields = null, string objectId = null, JObject queries = null, string path = null)
         {
-            var s = new NCMBSignature(_ncmb.application_key, _ncmb.client_key);
+            var s = new NCMBSignature(_ncmb.ApplicationKey, _ncmb.ClientKey);
             var time = DateTime.Now;
             if (fields != null)
             {
@@ -60,14 +60,14 @@ namespace NCMBClient
             var url = s.url(name, objectId, queries, path);
             var headers = new Hashtable()
             {
-                { "X-NCMB-Application-Key", _ncmb.application_key },
+                { "X-NCMB-Application-Key", _ncmb.ApplicationKey },
                 { "X-NCMB-Timestamp", time.ToString("yyyy-MM-ddTHH:mm:ss.fffZ") },
                 { "X-NCMB-Signature", signature },
                 { "Content-Type", "application/json" }
             };
-            if (_ncmb.sessionToken != null)
+            if (_ncmb.SessionToken != null)
             {
-                headers.Add("X-NCMB-Apps-Session-Token", _ncmb.sessionToken);
+                headers.Add("X-NCMB-Apps-Session-Token", _ncmb.SessionToken);
             }
 
             var client = new WebClient();

@@ -9,14 +9,14 @@ namespace NCMBClient
 {
     public class NCMBSignature
     {
-        private string _fqdn = "mbaas.api.nifcloud.com";
-        private string _signatureMethod = "HmacSHA256";
-        private string _signatureVersion = "2";
-        private string _version = "2013-09-01";
-        private string _application_key;
-        private string _client_key;
+        private const string Fqdn = "mbaas.api.nifcloud.com";
+        private const string SignatureMethod = "HmacSHA256";
+        private const string SignatureVersion = "2";
+        private const string Version = "2013-09-01";
+        private readonly string _applicationKey;
+        private readonly string _clientKey;
 
-        private Hashtable _base_info = new Hashtable()
+        private readonly Dictionary<string, string> _baseInfo = new Dictionary<string, string>()
         {
             {"SignatureVersion", ""},
             {"SignatureMethod", ""},
@@ -24,17 +24,17 @@ namespace NCMBClient
             {"X-NCMB-Timestamp", ""}
         };
 
-        public NCMBSignature(string app_key, string cli_key)
+        public NCMBSignature(string applicationKey, string clientKey)
         {
-            _application_key = app_key;
-            _client_key = cli_key;
-            _base_info["SignatureVersion"] = _signatureVersion;
-            _base_info["SignatureMethod"] = _signatureMethod;
-            _base_info["X-NCMB-Application-Key"] = app_key;
+            _applicationKey = applicationKey;
+            _clientKey = clientKey;
+            _baseInfo["SignatureVersion"] = SignatureVersion;
+            _baseInfo["SignatureMethod"] = SignatureMethod;
+            _baseInfo["X-NCMB-Application-Key"] = applicationKey;
         }
 
         private string path(string class_name, string objectId = null, string definePath = null) {
-            string path = $"/{_version}";
+            string path = $"/{Version}";
             if (definePath != null) {
                 return $"{path}/{definePath}";
             }
@@ -62,37 +62,37 @@ namespace NCMBClient
 
             }
             var queryString = queryList.Count == 0 ? "" : $"?{String.Join("&", queryList)}";
-            return $"https://{_fqdn}{path(class_name, objectId, definePath)}{queryString}";
+            return $"https://{Fqdn}{path(class_name, objectId, definePath)}{queryString}";
         }
 
         public string generate(string method, string class_name, DateTime time, string objectId = null, JObject queries = null, string definePath = null)
         {
             
-            _base_info["X-NCMB-Timestamp"] = time.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+            _baseInfo["X-NCMB-Timestamp"] = time.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
             
             var sigList = new List<string>();
             if (queries != null)
             {
                 foreach (KeyValuePair <string, JToken> key in queries)
                 {
-                    _base_info.Add(key.Key, Uri.EscapeDataString(key.Value.ToString(Newtonsoft.Json.Formatting.None)));
+                    _baseInfo.Add(key.Key, Uri.EscapeDataString(key.Value.ToString(Newtonsoft.Json.Formatting.None)));
                 }
                 
             }
-            var keys = new ArrayList(_base_info.Keys);
+            var keys = new ArrayList(_baseInfo.Keys);
             keys.Sort(StringComparer.Ordinal);
             foreach (string key in keys)
             {
-                sigList.Add($"{key}={_base_info[key]}");
+                sigList.Add($"{key}={_baseInfo[key]}");
             }
             var queryString = String.Join("&", sigList);
             var str = String.Join("\n", new[]{
                 method,
-                _fqdn,
+                Fqdn,
                 path(class_name, objectId, definePath),
                 queryString
             });
-            var hmacSha256 = new HMACSHA256(Encoding.Default.GetBytes(_client_key));
+            var hmacSha256 = new HMACSHA256(Encoding.Default.GetBytes(_clientKey));
             var hash = hmacSha256.ComputeHash(Encoding.Default.GetBytes(str));
             return Convert.ToBase64String(hash);
         }

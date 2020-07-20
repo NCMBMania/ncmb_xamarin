@@ -15,23 +15,23 @@ namespace NCMBClient
             _ncmb = ncmb;
         }
 
-        public JObject post(string name, JObject fields)
+        public JObject Post(string name, JObject fields)
         {
-            return exec("POST", name, fields);
+            return Exec("POST", name, fields);
         }
 
-        public JObject put(string name, string objectId, JObject fields)
+        public JObject Put(string name, string objectId, JObject fields)
         {
-            return exec("PUT", name, fields, objectId);
+            return Exec("PUT", name, fields, objectId);
         }
 
-        public Boolean delete(string name, string objectId)
+        public bool Delete(string name, string objectId)
         {
-            var response = exec("DELETE", name, null, objectId);
+            var response = Exec("DELETE", name, null, objectId);
             return response.Count == 0;
         }
 
-        public JObject exec(string method, string name, JObject fields = null, string objectId = null, JObject queries = null, string path = null)
+        public JObject Exec(string method, string name, JObject fields = null, string objectId = null, JObject queries = null, string path = null)
         {
             var s = new NCMBSignature(_ncmb.ApplicationKey, _ncmb.ClientKey);
             var time = DateTime.Now;

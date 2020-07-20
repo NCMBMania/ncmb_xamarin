@@ -20,79 +20,79 @@ namespace NCMBClient
             _objects = new Dictionary<string, object>();
         }
 
-        public NCMBObject set(string key, string value)
+        public NCMBObject Set(string key, string value)
         {
             _fields[key] = value;
             return this;
         }
 
-        public NCMBObject set(string key, int value)
+        public NCMBObject Set(string key, int value)
         {
             _fields[key] = value;
             return this;
         }
 
-        public NCMBObject set(string key, DateTime value)
+        public NCMBObject Set(string key, DateTime value)
         {
             _fields[key] = value;
             return this;
         }
 
 
-        public NCMBObject set(string key, Boolean value)
+        public NCMBObject Set(string key, bool value)
         {
             _fields[key] = value;
             return this;
         }
 
-        public NCMBObject set(string key, JObject value)
+        public NCMBObject Set(string key, JObject value)
         {
             _fields[key] = value;
             return this;
         }
-        public NCMBObject set(string key, JArray value)
+        public NCMBObject Set(string key, JArray value)
         {
             _fields[key] = value;
             return this;
         }
-        public NCMBObject set(string key, NCMBObject value)
+        public NCMBObject Set(string key, NCMBObject value)
         {
             _objects.Add(key, value);
             return this;
         }
 
-        public Object get(string key)
+        public object Get(string key)
         {
             return _objects.ContainsKey(key) ? _objects[key] : _fields.GetValue(key);
         }
 
-        public NCMBObject sets(JObject query)
+        public NCMBObject Sets(JObject query)
         {
             foreach (KeyValuePair<string, JToken> key in query)
             {
                 switch (key.Value.Type)
                 {
                     case JTokenType.String:
-                        this.set(key.Key, (string)key.Value);
+                        this.Set(key.Key, (string)key.Value);
                         break;
                     case JTokenType.Integer:
-                        this.set(key.Key, (int)key.Value);
+                        this.Set(key.Key, (int)key.Value);
                         break;
                     case JTokenType.Boolean:
-                        this.set(key.Key, (Boolean)key.Value);
+                        this.Set(key.Key, (Boolean)key.Value);
                         break;
                     case JTokenType.Date:
-                        this.set(key.Key, (DateTime)key.Value);
+                        this.Set(key.Key, (DateTime)key.Value);
                         break;
                     default:
                         var obj = (JObject)key.Value;
                         Console.WriteLine(obj);
                         if (obj.ContainsKey("__type") && ((string) obj["__type"]) == "Date")
                         {
-                            this.set(key.Key, DateTime.Parse((string) obj["iso"]));
+                            this.Set(key.Key, DateTime.Parse((string) obj["iso"]));
                         } else
                         {
-                            this.set(key.Key, (JObject)key.Value);
+                            this.Set(key.Key, (JObject)key.Value);
                         }
                         break;
                 }
@@ -100,23 +100,23 @@ namespace NCMBClient
             return this;
         }
 
-        public NCMBObject save()
+        public NCMBObject Save()
         {
             NCMBRequest r = new NCMBRequest(_ncmb);
             var response = _fields.ContainsKey("objectId") ?
-                r.put(Name, (string) _fields.GetValue("objectId"), getData()) :
-                r.post(Name, getData());
-            sets(response);
+                r.Put(Name, (string) _fields.GetValue("objectId"), GetData()) :
+                r.Post(Name, GetData());
+            Sets(response);
             return this;
         }
 
-        public Boolean delete()
+        public bool Delete()
         {
             NCMBRequest r = new NCMBRequest(_ncmb);
-            return r.delete(Name, (string)_fields.GetValue("objectId"));
+            return r.Delete(Name, (string)_fields.GetValue("objectId"));
         }
 
-        private JObject getData()
+        private JObject GetData()
         {
             var results = new JObject();
             Console.WriteLine(_objects);
@@ -126,7 +126,7 @@ namespace NCMBClient
                 var obj = (NCMBObject) key.Value;
                 data["__type"] = "Pointer";
                 data.Add("className", obj.Name);
-                var objectId = obj.get("objectId");
+                var objectId = obj.Get("objectId");
                 data.Add("objectId", objectId.ToString());
                 results[key.Key] = data;
             }

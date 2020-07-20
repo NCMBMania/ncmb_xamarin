@@ -4,12 +4,7 @@
 
 ## インストール
 
-コードをダウンロードして、自分のXamarinプロジェクトに取り込んでください。
-
-**注意**
-
-- ネームスペースが `ncmb_xamarin` になっていますので、適宜修正してください
-- 依存ライブラリとしてJSON.NETを追加してください
+NuGet から NCMBClient パッケージをインストールしてください。
 
 ## 使い方
 
@@ -26,19 +21,19 @@ var ncmb = new NCMB("ea5...265", "fe3...615");
 ```cs
 // データストアの操作
 var hello = ncmb.Object("Hello");
-hello.set("message", "Hello world");
-hello.set("number", 100);
-hello.set("bol", true);
+hello.Set("message", "Hello world");
+hello.Set("number", 100);
+hello.Set("bol", true);
 var ary = new JArray();
 ary.Add("test1");
 ary.Add("test2");
-hello.set("array", ary);
+hello.Set("array", ary);
 var obj = new JObject();
 obj["test1"] = "Hello";
 obj["test2"] = 100;
-hello.set("obj", obj);
-hello.set("time", DateTime.Now);
-hello.save();
+hello.Set("obj", obj);
+hello.Set("time", DateTime.Now);
+hello.Save();
 ```
 
 #### データのアクセス
@@ -48,13 +43,13 @@ hello.save();
 **文字列型の場合**
 
 ```cs
-(string) hello.get("objectId")
+(string) hello.Get("objectId")
 ```
 
 **配列の場合**
 
 ```cs
-var ary = (JArray) hello.get("array");
+var ary = (JArray) hello.Get("array");
 ```
 
 ## ライセンス

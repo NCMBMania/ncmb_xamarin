@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>NCMBClient</PackageId>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>NCMB Mania</Authors>
     <Description>
       ニフクラ mobile backendのXamarin用SDKです。

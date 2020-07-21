@@ -33,7 +33,7 @@ namespace NCMBClient
             _baseInfo["X-NCMB-Application-Key"] = applicationKey;
         }
 
-        private string path(string class_name, string objectId = null, string definePath = null) {
+        private string Path(string class_name, string objectId = null, string definePath = null) {
             string path = $"/{Version}";
             if (definePath != null) {
                 return $"{path}/{definePath}";
@@ -50,7 +50,7 @@ namespace NCMBClient
             return path;
         }
 
-        public string url(string class_name, string objectId = null, JObject queries = null, string definePath = null)
+        public string Url(string class_name, string objectId = null, JObject queries = null, string definePath = null)
         {
             var queryList = new List<string>();
             if (queries != null && queries.Count >= 0)
@@ -64,10 +64,10 @@ namespace NCMBClient
 
             }
             var queryString = queryList.Count == 0 ? "" : $"?{String.Join("&", queryList)}";
-            return $"https://{Fqdn}{path(class_name, objectId, definePath)}{queryString}";
+            return $"https://{Fqdn}{Path(class_name, objectId, definePath)}{queryString}";
         }
 
-        public string generate(string method, string class_name, DateTime time, string objectId = null, JObject queries = null, string definePath = null)
+        public string Generate(string method, string class_name, DateTime time, string objectId = null, JObject queries = null, string definePath = null)
         {
             
             _baseInfo["X-NCMB-Timestamp"] = time.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
@@ -93,7 +93,7 @@ namespace NCMBClient
             var str = String.Join("\n", new[]{
                 method,
                 Fqdn,
-                path(class_name, objectId, definePath),
+                Path(class_name, objectId, definePath),
                 queryString
             });
             var hmacSha256 = new HMACSHA256(Encoding.Default.GetBytes(_clientKey));

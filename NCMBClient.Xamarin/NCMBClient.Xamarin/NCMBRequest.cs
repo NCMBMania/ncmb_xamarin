@@ -61,8 +61,8 @@ namespace NCMBClient
                 }
             }
 
-            var signature = s.generate(method, name, time, objectId, queries, path);
-            var url = s.url(name, objectId, queries, path);
+            var signature = s.Generate(method, name, time, objectId, queries, path);
+            var url = s.Url(name, objectId, queries, path);
             var headers = new Hashtable()
             {
                 { "X-NCMB-Application-Key", _ncmb.ApplicationKey },

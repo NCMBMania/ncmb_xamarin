@@ -87,7 +87,7 @@ namespace NCMBClient
                         this.Set(key.Key, (DateTime)key.Value);
                         break;
                     case JTokenType.Array:
-                        this.set(key.Key, (JArray) key.Value);
+                        this.Set(key.Key, (JArray) key.Value);
                         break;
                     default:
                         var obj = (JObject)key.Value;

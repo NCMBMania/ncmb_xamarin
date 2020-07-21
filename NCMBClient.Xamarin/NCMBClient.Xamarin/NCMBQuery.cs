@@ -2,93 +2,93 @@
 using Newtonsoft.Json.Linq;
 using System.Collections;
 
-namespace ncmb_xamarin
+namespace NCMBClient
 {
     public class NCMBQuery
     {
-        public string name;
+        public string Name { get; }
         private JObject where;
         private int _limit;
         private NCMB _ncmb;
         public NCMBQuery(NCMB ncmb, string name)
         {
-            this.name = name;
+            this.Name = name;
             this._ncmb = ncmb;
             this.where = new JObject();
         }
 
-        public NCMBQuery limit(int num)
+        public NCMBQuery Limit(int num)
         {
             _limit = num;
             return this;
         }
 
-        public NCMBQuery equalTo(string name, object value)
+        public NCMBQuery EqualTo(string name, object value)
         {
-            return setOperand(name, value);
+            return SetOperand(name, value);
         }
 
-        public NCMBQuery notEqualTo(string name, object value)
+        public NCMBQuery NotEqualTo(string name, object value)
         {
-            return setOperand(name, value, "$ne");
+            return SetOperand(name, value, "$ne");
         }
 
-        public NCMBQuery lessThan(string name, object value)
+        public NCMBQuery LessThan(string name, object value)
         {
-            return setOperand(name, value, "$lt");
+            return SetOperand(name, value, "$lt");
         }
 
-        public NCMBQuery lessThanOrEqualTo(string name, object value)
+        public NCMBQuery LessThanOrEqualTo(string name, object value)
         {
-            return setOperand(name, value, "$lte");
+            return SetOperand(name, value, "$lte");
         }
 
-        public NCMBQuery greaterThan(string name, object value)
+        public NCMBQuery GreaterThan(string name, object value)
         {
-            return setOperand(name, value, "$gt");
+            return SetOperand(name, value, "$gt");
         }
 
-        public NCMBQuery greaterThanOrEqualTo(string name, object value)
+        public NCMBQuery GreaterThanOrEqualTo(string name, object value)
         {
-            return setOperand(name, value, "$gte");
+            return SetOperand(name, value, "$gte");
         }
 
-        public NCMBQuery inString(string name, object value)
+        public NCMBQuery InString(string name, object value)
         {
-            return setOperand(name, value, "$in");
+            return SetOperand(name, value, "$in");
         }
 
-        public NCMBQuery notInString(string name, object value)
+        public NCMBQuery NotInString(string name, object value)
         {
-            return setOperand(name, value, "$nin");
+            return SetOperand(name, value, "$nin");
         }
 
-        public NCMBQuery exists(string name, bool value = true)
+        public NCMBQuery Exists(string name, bool value = true)
         {
-            return setOperand(name, value, "$exists");
+            return SetOperand(name, value, "$exists");
         }
 
-        public NCMBQuery regularExpressionTo(string name, object value)
+        public NCMBQuery RegularExpressionTo(string name, object value)
         {
-            return setOperand(name, value, "$regex");
+            return SetOperand(name, value, "$regex");
         }
 
-        public NCMBQuery inArray(string name, object value)
+        public NCMBQuery InArray(string name, object value)
         {
-            return setOperand(name, value, "$inArray");
+            return SetOperand(name, value, "$inArray");
         }
 
-        public NCMBQuery notInArray(string name, object value)
+        public NCMBQuery NotInArray(string name, object value)
         {
-            return setOperand(name, value, "$ninArray");
+            return SetOperand(name, value, "$ninArray");
         }
 
-        public NCMBQuery allInArray(string name, object value)
+        public NCMBQuery AllInArray(string name, object value)
         {
-            return setOperand(name, value, "$all");
+            return SetOperand(name, value, "$all");
         }
 
-        public NCMBQuery setOperand(string name, object value, string ope = null)
+        public NCMBQuery SetOperand(string name, object value, string ope = null)
         {
             if (value is DateTime)
             {
@@ -132,7 +132,7 @@ namespace ncmb_xamarin
             return this;
         }
 
-        public NCMBObject[] find()
+        public NCMBObject[] Find()
         {
             var queries = new JObject();
             if (where.Count > 0)
@@ -140,15 +140,15 @@ namespace ncmb_xamarin
                 queries.Add("where", where);
             }
             var r = new NCMBRequest(_ncmb);
-            var results = r.get(name, queries);
+            var results = r.Get(Name, queries);
             var ary = (JArray)results.GetValue("results");
             var count = ary.Count;
             var objs = new NCMBObject[count];
             var i = 0;
             foreach (var row in ary)
             {
-                var obj = _ncmb.Object(name);
-                obj.sets((JObject) row);
+                var obj = _ncmb.Object(Name);
+                obj.Sets((JObject) row);
                 objs[i] = obj;
                 i++;
             }

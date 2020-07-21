@@ -79,7 +79,7 @@ namespace NCMBClient
                 {
                     var obj = key.Value.ToString(Newtonsoft.Json.Formatting.None);
                     if (obj == "{}") continue;
-                    _base_info.Add(key.Key, Uri.EscapeDataString(obj));
+                    _baseInfo.Add(key.Key, Uri.EscapeDataString(obj));
                 }
                 
             }

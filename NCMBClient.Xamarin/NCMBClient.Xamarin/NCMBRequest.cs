@@ -15,12 +15,12 @@ namespace NCMBClient
             _ncmb = ncmb;
         }
 
-        public JObject get(string name, JObject queries)
+        public JObject Get(string name, JObject queries)
         {
-            return exec("GET", name, null, null, queries);
+            return Exec("GET", name, null, null, queries);
         }
 
-        public JObject post(string name, JObject fields)
+        public JObject Post(string name, JObject fields)
         {
             return Exec("POST", name, fields);
         }

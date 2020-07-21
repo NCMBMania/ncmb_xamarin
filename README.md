@@ -59,43 +59,43 @@ var ary2 = hello.Get<JArrat>("array");
 ```cs
 // 文字列、数字の検索
 var query = ncmb.Query("Hello");
-query.equalTo("message", "Test message").equalTo("number", 501);
+query.EqualTo("message", "Test message").EqualTo("number", 501);
 
-var results = query.find();
-Console.WriteLine(results[0].get("objectId"));
+var results = query.Find();
+Console.WriteLine(results[0].Get("objectId"));
 
 // 配列を検索
-query.inString("message", new JArray("Test message"));
-var results2 = query.find();
-Console.WriteLine(results2[0].get("objectId"));
+query.InString("message", new JArray("Test message"));
+var results2 = query.Find();
+Console.WriteLine(results2[0].Get("objectId"));
 
 // 数値を使った検索
-query.greaterThan("number", 500);
-var results3 = query.find();
-Console.WriteLine(results3[0].get("objectId"));
+query.GreaterThan("number", 500);
+var results3 = query.Find();
+Console.WriteLine(results3[0].Get("objectId"));
 
 // 日付を使った検索
 var query2 = ncmb.Query("Hello");
 query2.greaterThan("time", DateTime.Parse("2020-07-10T08:40:00"));
-var results4 = query2.find();
-Console.WriteLine(results4[0].get("objectId"));
+var results4 = query2.Find();
+Console.WriteLine(results4[0].Get("objectId"));
 ```
 
 **その他のオペランド**
 
-- equalTo(string name, object value)
-- notEqualTo(string name, object value)
-- lessThan(string name, object value)
-- lessThanOrEqualTo(string name, object value)
-- greaterThan(string name, object value)
-- greaterThanOrEqualTo(string name, object value)
-- inString(string name, object value)
-- notInString(string name, object value)
-- exists(string name, bool value = true)
-- regularExpressionTo(string name, object value)
-- inArray(string name, object value)
-- notInArray(string name, object value)
-- allInArray(string name, object value)
+- EqualTo(string name, object value)
+- NotEqualTo(string name, object value)
+- LessThan(string name, object value)
+- LessThanOrEqualTo(string name, object value)
+- GreaterThan(string name, object value)
+- GreaterThanOrEqualTo(string name, object value)
+- InString(string name, object value)
+- NotInString(string name, object value)
+- Exists(string name, bool value = true)
+- RegularExpressionTo(string name, object value)
+- InArray(string name, object value)
+- NotInArray(string name, object value)
+- AllInArray(string name, object value)
 
 ## ライセンス
 

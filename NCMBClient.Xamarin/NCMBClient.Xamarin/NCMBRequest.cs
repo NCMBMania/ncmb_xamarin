@@ -15,7 +15,12 @@ namespace NCMBClient
             _ncmb = ncmb;
         }
 
-        public JObject Post(string name, JObject fields)
+        public JObject get(string name, JObject queries)
+        {
+            return exec("GET", name, null, null, queries);
+        }
+
+        public JObject post(string name, JObject fields)
         {
             return Exec("POST", name, fields);
         }
@@ -76,7 +81,9 @@ namespace NCMBClient
                 client.Headers[key] = headers[key].ToString();
             }
             client.Encoding = Encoding.UTF8;
-            var response = client.UploadString(url, method, fields != null ? fields.ToString(): "");
+
+            Console.WriteLine(queries);
+            var response = method == "GET" ? System.Text.Encoding.UTF8.GetString(client.DownloadData(url)) : client.UploadString(url, method, fields != null ? fields.ToString(): "");
             if (method == "DELETE" && response == "") return new JObject();
             return JObject.Parse(response);
         }

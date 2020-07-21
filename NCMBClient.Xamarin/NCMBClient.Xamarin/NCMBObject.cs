@@ -86,9 +86,11 @@ namespace NCMBClient
                     case JTokenType.Date:
                         this.Set(key.Key, (DateTime)key.Value);
                         break;
+                    case JTokenType.Array:
+                        this.set(key.Key, (JArray) key.Value);
+                        break;
                     default:
                         var obj = (JObject)key.Value;
-                        Console.WriteLine(obj);
                         if (obj.ContainsKey("__type") && ((string) obj["__type"]) == "Date")
                         {
                             this.Set(key.Key, DateTime.Parse((string) obj["iso"]));

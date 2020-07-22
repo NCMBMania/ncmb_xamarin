@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Net;
 
-namespace ncmb_xamarin
+namespace NCMBClient
 {
     public class NCMBRequest
     {
@@ -15,30 +15,30 @@ namespace ncmb_xamarin
             _ncmb = ncmb;
         }
 
-        public JObject get(string name, JObject queries)
+        public JObject Get(string name, JObject queries)
         {
-            return exec("GET", name, null, null, queries);
+            return Exec("GET", name, null, null, queries);
         }
 
-        public JObject post(string name, JObject fields)
+        public JObject Post(string name, JObject fields)
         {
-            return exec("POST", name, fields);
+            return Exec("POST", name, fields);
         }
 
-        public JObject put(string name, string objectId, JObject fields)
+        public JObject Put(string name, string objectId, JObject fields)
         {
-            return exec("PUT", name, fields, objectId);
+            return Exec("PUT", name, fields, objectId);
         }
 
-        public Boolean delete(string name, string objectId)
+        public bool Delete(string name, string objectId)
         {
-            var response = exec("DELETE", name, null, objectId);
+            var response = Exec("DELETE", name, null, objectId);
             return response.Count == 0;
         }
 
-        public JObject exec(string method, string name, JObject fields = null, string objectId = null, JObject queries = null, string path = null)
+        public JObject Exec(string method, string name, JObject fields = null, string objectId = null, JObject queries = null, string path = null)
         {
-            var s = new NCMBSignature(_ncmb.application_key, _ncmb.client_key);
+            var s = new NCMBSignature(_ncmb.ApplicationKey, _ncmb.ClientKey);
             var time = DateTime.Now;
             if (fields != null)
             {
@@ -61,18 +61,18 @@ namespace ncmb_xamarin
                 }
             }
 
-            var signature = s.generate(method, name, time, objectId, queries, path);
-            var url = s.url(name, objectId, queries, path);
+            var signature = s.Generate(method, name, time, objectId, queries, path);
+            var url = s.Url(name, objectId, queries, path);
             var headers = new Hashtable()
             {
-                { "X-NCMB-Application-Key", _ncmb.application_key },
+                { "X-NCMB-Application-Key", _ncmb.ApplicationKey },
                 { "X-NCMB-Timestamp", time.ToString("yyyy-MM-ddTHH:mm:ss.fffZ") },
                 { "X-NCMB-Signature", signature },
                 { "Content-Type", "application/json" }
             };
-            if (_ncmb.sessionToken != null)
+            if (_ncmb.SessionToken != null)
             {
-                headers.Add("X-NCMB-Apps-Session-Token", _ncmb.sessionToken);
+                headers.Add("X-NCMB-Apps-Session-Token", _ncmb.SessionToken);
             }
 
             var client = new WebClient();

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>NCMBClient</PackageId>
+    <Authors>NCMB Mania</Authors>
+    <Description>
+      ニフクラ mobile backendのXamarin用SDKです。
+    </Description>
+    <Copyright>Copyright (c) 2020 NCMB Mania</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/NCMBMania/ncmb_xamarin</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/NCMBMania/ncmb_xamarin</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Nifty NCMB Xamarin</PackageTags>
+    <NeutralLanguage />
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+</Project>

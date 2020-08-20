@@ -12,9 +12,10 @@
     <PackageProjectUrl>https://github.com/NCMBMania/ncmb_xamarin</PackageProjectUrl>
     <RepositoryUrl>https://github.com/NCMBMania/ncmb_xamarin</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>Nifty NCMB Xamarin</PackageTags>
+    <PackageTags>Nifcloud mBaaS Xamarin</PackageTags>
     <NeutralLanguage />
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
+    <ReleaseVersion>0.2</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>

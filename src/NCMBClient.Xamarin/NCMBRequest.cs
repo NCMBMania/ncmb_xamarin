@@ -3,6 +3,7 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Collections;
+using System.Threading.Tasks;
 using System.Net;
 
 namespace NCMBClient
@@ -10,59 +11,46 @@ namespace NCMBClient
     public class NCMBRequest
     {
         private NCMB _ncmb;
+        public String Method;
+        public String Name;
+        public JObject Fields;
+        public String ObjectId;
+        public JObject Queries;
+        public String Path;
+
         public NCMBRequest(NCMB ncmb)
         {
             _ncmb = ncmb;
         }
 
-        public JObject Get(string name, JObject queries)
+        private String FieldToString()
         {
-            return Exec("GET", name, null, null, queries);
-        }
-
-        public JObject Post(string name, JObject fields)
-        {
-            return Exec("POST", name, fields);
-        }
-
-        public JObject Put(string name, string objectId, JObject fields)
-        {
-            return Exec("PUT", name, fields, objectId);
-        }
-
-        public bool Delete(string name, string objectId)
-        {
-            var response = Exec("DELETE", name, null, objectId);
-            return response.Count == 0;
-        }
-
-        public JObject Exec(string method, string name, JObject fields = null, string objectId = null, JObject queries = null, string path = null)
-        {
-            var s = new NCMBSignature(_ncmb.ApplicationKey, _ncmb.ClientKey);
-            var time = DateTime.Now;
-            if (fields != null)
+            if (Fields != null)
             {
-                foreach (var key in new string[]{ "objectId", "createDate", "updateDate"}) {
-                    if (fields.ContainsKey(key))
-                        fields.Remove(key);
+                foreach (var key in new string[] { "objectId", "createDate", "updateDate" })
+                {
+                    if (Fields.ContainsKey(key))
+                        Fields.Remove(key);
                 }
             }
-            if (fields != null)
+            if (Fields != null)
             {
-                foreach (KeyValuePair<string, JToken> key in fields)
+                foreach (KeyValuePair<string, JToken> key in Fields)
                 {
                     if (key.Value.Type == JTokenType.Date)
                     {
                         var date = new JObject();
                         date["__type"] = "Date";
                         date["iso"] = ((DateTime)key.Value).ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
-                        fields[key.Key] = date;
+                        Fields[key.Key] = date;
                     }
                 }
             }
+            return Fields != null ? Fields.ToString() : "";
+        }
 
-            var signature = s.Generate(method, name, time, objectId, queries, path);
-            var url = s.Url(name, objectId, queries, path);
+        private Hashtable GetHeader(DateTime time, String signature)
+        {
             var headers = new Hashtable()
             {
                 { "X-NCMB-Application-Key", _ncmb.ApplicationKey },
@@ -74,17 +62,65 @@ namespace NCMBClient
             {
                 headers.Add("X-NCMB-Apps-Session-Token", _ncmb.SessionToken);
             }
+            return headers;
+        }
 
+        private WebClient GetClient(Hashtable headers)
+        {
             var client = new WebClient();
-            foreach(string key in headers.Keys)
+            foreach (string key in headers.Keys)
             {
                 client.Headers[key] = headers[key].ToString();
             }
             client.Encoding = Encoding.UTF8;
+            return client;
+        }
 
-            Console.WriteLine(queries);
-            var response = method == "GET" ? System.Text.Encoding.UTF8.GetString(client.DownloadData(url)) : client.UploadString(url, method, fields != null ? fields.ToString(): "");
-            if (method == "DELETE" && response == "") return new JObject();
+        public JObject Exec()
+        {
+            var s = new NCMBSignature(_ncmb.ApplicationKey, _ncmb.ClientKey);
+            s.Method = Method;
+            s.Name = Name;
+            s.ObjectId = ObjectId;
+            s.Queries = Queries;
+            s.Path = Path;
+            var signature = s.Generate();
+
+            var headers = GetHeader(s.Time, signature);
+            var client = GetClient(headers);
+            var response = "";
+            if (Method == "GET")
+            {
+                response = System.Text.Encoding.UTF8.GetString(client.DownloadData(new Uri(s.Url())));
+            }
+            else
+            {
+                response = client.UploadString(s.Url(), Method, FieldToString());
+            }
+            if (Method == "DELETE" && response == "") return new JObject();
+            return JObject.Parse(response);
+        }
+
+        public async Task<JObject> ExecAsync()
+        {
+            var s = new NCMBSignature(_ncmb.ApplicationKey, _ncmb.ClientKey);
+            s.Method = Method;
+            s.Name = Name;
+            s.ObjectId = ObjectId;
+            s.Queries = Queries;
+            s.Path = Path;
+            var signature = s.Generate();
+            var headers = GetHeader(s.Time, signature);
+            var client = GetClient(headers);
+            var response = "";
+            if (Method == "GET")
+            {
+                response = System.Text.Encoding.UTF8.GetString(await client.DownloadDataTaskAsync(new Uri(s.Url())));
+            } else
+            {
+                response = await client.UploadStringTaskAsync(s.Url(), Method, FieldToString());
+            }
+            if (Method == "DELETE" && response == "") return new JObject();
             return JObject.Parse(response);
         }
     }

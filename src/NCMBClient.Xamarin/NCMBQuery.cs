@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 using System.Collections;
+using System.Threading.Tasks;
 
 namespace NCMBClient
 {
@@ -9,12 +10,19 @@ namespace NCMBClient
         public string Name { get; }
         private JObject where;
         private int _limit;
+        private string _order;
         private NCMB _ncmb;
         public NCMBQuery(NCMB ncmb, string name)
         {
             this.Name = name;
             this._ncmb = ncmb;
             this.where = new JObject();
+        }
+
+        public NCMBQuery Order(string name)
+        {
+            _order = name;
+            return this;
         }
 
         public NCMBQuery Limit(int num)
@@ -134,13 +142,34 @@ namespace NCMBClient
 
         public NCMBObject[] Find()
         {
+            var r = GetClient();
+            var results = r.Exec();
+            return ConvertResults(results);
+        }
+
+        public async Task<NCMBObject[]> FindAsync()
+        {
+            var r = GetClient();
+            var results = await r.ExecAsync();
+            return ConvertResults(results);
+        }
+
+        private NCMBRequest GetClient()
+        {
             var queries = new JObject();
             if (where.Count > 0)
             {
                 queries.Add("where", where);
             }
             var r = new NCMBRequest(_ncmb);
-            var results = r.Get(Name, queries);
+            r.Name = Name;
+            r.Queries = queries;
+            r.Method = "GET";
+            return r;
+        }
+
+        private NCMBObject[] ConvertResults(JObject results)
+        {
             var ary = (JArray)results.GetValue("results");
             var count = ary.Count;
             var objs = new NCMBObject[count];
@@ -148,7 +177,7 @@ namespace NCMBClient
             foreach (var row in ary)
             {
                 var obj = _ncmb.Object(Name);
-                obj.Sets((JObject) row);
+                obj.Sets((JObject)row);
                 objs[i] = obj;
                 i++;
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Collections;
 
 namespace NCMBClient
@@ -106,10 +107,33 @@ namespace NCMBClient
 
         public NCMBObject Save()
         {
+            var r = GetRequest();
+            var response = r.Exec();
+            Sets(response);
+            return this;
+        }
+
+        private NCMBRequest GetRequest()
+        {
             NCMBRequest r = new NCMBRequest(_ncmb);
-            var response = _fields.ContainsKey("objectId") ?
-                r.Put(Name, (string) _fields.GetValue("objectId"), GetData()) :
-                r.Post(Name, GetData());
+            r.Name = Name;
+            r.Fields = GetData();
+            if (_fields.ContainsKey("objectId"))
+            {
+                r.Method = "PUT";
+                r.ObjectId = ObjectId();
+            }
+            else
+            {
+                r.Method = "POST";
+            }
+            return r;
+        }
+
+        public async Task<NCMBObject> SaveAsync()
+        {
+            var r = GetRequest();
+            var response = await r.ExecAsync();
             Sets(response);
             return this;
         }
@@ -117,7 +141,48 @@ namespace NCMBClient
         public bool Delete()
         {
             NCMBRequest r = new NCMBRequest(_ncmb);
-            return r.Delete(Name, (string)_fields.GetValue("objectId"));
+            r.Method = "DELETE";
+            r.Name = Name;
+            r.ObjectId = ObjectId();
+            var response = r.Exec();
+            return response.Count == 0;
+        }
+
+        public async Task<bool> DeleteAsync()
+        {
+            NCMBRequest r = new NCMBRequest(_ncmb);
+            r.Method = "DELETE";
+            r.Name = Name;
+            r.ObjectId = ObjectId();
+            var response = await r.ExecAsync();
+            return response.Count == 0;
+        }
+
+        public String ObjectId()
+        {
+            return (string)_fields.GetValue("objectId");
+        }
+
+        public async Task<bool> FetchAsync()
+        {
+            NCMBRequest r = new NCMBRequest(_ncmb);
+            r.Method = "GET";
+            r.Name = Name;
+            r.ObjectId = ObjectId();
+            var response = await r.ExecAsync();
+            Sets(response);
+            return true;
+        }
+
+        public bool Fetch()
+        {
+            NCMBRequest r = new NCMBRequest(_ncmb);
+            r.Method = "GET";
+            r.Name = Name;
+            r.ObjectId = ObjectId();
+            var response = r.Exec();
+            Sets(response);
+            return true;
         }
 
         private JObject GetData()

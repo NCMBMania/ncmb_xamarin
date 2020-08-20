@@ -14,6 +14,80 @@ NuGet から NCMBClient パッケージをインストールしてください�
 var ncmb = new NCMB("ea5...265", "fe3...615");
 ```
 
+### 会員管理
+
+#### 会員登録
+
+**同期処理の場合**
+
+```cs
+var user = this._ncmb.User();
+user.Set("userName", "TestUser");
+user.Set("password", "TestPass");
+await user.SignUp();
+```
+
+**非同期処理の場合**
+
+```cs
+var user = this._ncmb.User();
+user.Set("userName", "TestUser");
+user.Set("password", "TestPass");
+await user.SignUpAsync();
+```
+
+#### ログイン（ID/パスワード）
+
+**同期処理の場合**
+
+```cs
+var user = this._ncmb.User();
+user.Set("userName", "TestLogin");
+user.Set("password", "TestLogin");
+if (user.Login())
+{
+  // Login success
+} else
+{
+  // Login Failure
+}
+```
+
+**非同期処理の場合**
+
+```cs
+var user = this._ncmb.User();
+user.Set("userName", "TestLogin");
+user.Set("password", "TestLogin");
+if (await user.LoginAsync())
+{
+  // Login success
+} else
+{
+  // Login Failure
+}
+```
+
+#### 会員削除
+
+**同期の場合**
+
+```cs
+user.Delete();
+```
+
+**非同期の場合**
+
+```cs
+await user.DeleteAsync();
+```
+
+#### ログアウト
+
+```cs
+_ncmb.Logout();
+```
+
 ### データストア
 
 #### 保存

@@ -14,8 +14,8 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Nifcloud mBaaS Xamarin</PackageTags>
     <NeutralLanguage />
-    <Version>0.2.0</Version>
-    <ReleaseVersion>0.2</ReleaseVersion>
+    <Version>0.3.0</Version>
+    <ReleaseVersion>0.3</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>

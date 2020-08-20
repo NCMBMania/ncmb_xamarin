@@ -5,7 +5,7 @@ namespace NCMBClient
     {
         public string ApplicationKey { get; }
         public string ClientKey { get; }
-        public string SessionToken { get; }
+        public string SessionToken { get; set; }
 
         public NCMB(string applicationKey, string clientKey)
         {
@@ -21,6 +21,16 @@ namespace NCMBClient
         public NCMBQuery Query(string name)
         {
             return new NCMBQuery(this, name);
+        }
+
+        public NCMBUser User()
+        {
+            return new NCMBUser(this);
+        }
+
+        public void Logout()
+        {
+            SessionToken = null;
         }
 
     }

@@ -58,6 +58,21 @@ namespace NCMBClient
             return path;
         }
 
+        private string GetEscapeValue(JToken value)
+        {
+            switch (value.Type)
+            {
+                case JTokenType.String:
+                case JTokenType.Integer:
+                case JTokenType.Boolean:
+                    return value.ToString();
+                default:
+                    var str = value.ToString(Newtonsoft.Json.Formatting.None);
+                    if (str == "{}") return null;
+                    return str;
+            }
+
+        }
         public string Url()
         {
             var queryList = new List<string>();
@@ -65,9 +80,11 @@ namespace NCMBClient
             {
                 foreach (KeyValuePair<string, JToken> key in Queries)
                 {
-                    var str = key.Value.ToString(Newtonsoft.Json.Formatting.None);
-                    if (str == "{}") continue;
-                    queryList.Add($"{key.Key}={Uri.EscapeDataString(str)}");
+                    var value = GetEscapeValue(key.Value);
+                    if (value != null)
+                    {
+                        queryList.Add($"{key.Key}={Uri.EscapeDataString(value)}");
+                    } 
                 }
 
             }
@@ -85,9 +102,11 @@ namespace NCMBClient
             {
                 foreach (KeyValuePair <string, JToken> key in Queries)
                 {
-                    var obj = key.Value.ToString(Newtonsoft.Json.Formatting.None);
-                    if (obj == "{}") continue;
-                    _baseInfo.Add(key.Key, Uri.EscapeDataString(obj));
+                    var value = GetEscapeValue(key.Value);
+                    if (value != null)
+                    {
+                        _baseInfo.Add(key.Key, Uri.EscapeDataString(value));
+                    }
                 }
                 
             }

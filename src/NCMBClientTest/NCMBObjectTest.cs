@@ -56,7 +56,8 @@ namespace NCMBClientTest
                 Assert.NotNull(item.ObjectId());
                 var objectId = item.ObjectId();
                 var newItem = _ncmb.Object("DataStoreTest");
-                await newItem.Set("objectId", objectId).FetchAsync();
+                newItem.Set("objectId", objectId);
+                await newItem.FetchAsync();
                 Assert.AreEqual(item.ObjectId(), newItem.ObjectId());
                 Assert.AreEqual(newItem.Get("message").ToString(), message);
                 await item.DeleteAsync();
@@ -73,7 +74,8 @@ namespace NCMBClientTest
             Assert.NotNull(item.ObjectId());
             var objectId = item.ObjectId();
             var newItem = _ncmb.Object("DataStoreTest");
-            newItem.Set("objectId", objectId).Fetch();
+            newItem.Set("objectId", objectId);
+            newItem.Fetch();
             Assert.AreEqual(item.ObjectId(), newItem.ObjectId());
             Assert.AreEqual(newItem.Get("message").ToString(), message);
             item.Delete();

@@ -21,7 +21,9 @@ namespace NCMBClientTest
             for (var i = 0; i < 5; i++)
             {
                 var item = _ncmb.Object("QueryTest");
-                item.Set("message", "Test message").Set("number", 500 + i).Save();
+                item.Set("message", "Test message");
+                item.Set("number", 500 + i);
+                item.Save();
             }
             var query = _ncmb.Query("QueryTest");
             query.EqualTo("message", "Test message").GreaterThanOrEqualTo("number", 502);
@@ -41,7 +43,9 @@ namespace NCMBClientTest
                 for (var i = 0; i < 5; i++)
                 {
                     var item = _ncmb.Object("QueryTest");
-                    await item.Set("message", "Test message").Set("number", 500 + i).SaveAsync();
+                    item.Set("message", "Test message");
+                    item.Set("number", 500 + i);
+                    await item.SaveAsync();
                 }
                 var query = _ncmb.Query("QueryTest");
                 query.EqualTo("message", "Test message").GreaterThanOrEqualTo("number", 502);

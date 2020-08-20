@@ -39,6 +39,7 @@
     <Compile Include="Test.cs" />
     <Compile Include="NCMBObjectTest.cs" />
     <Compile Include="NCMBQueryTest.cs" />
+    <Compile Include="NCMBUserTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

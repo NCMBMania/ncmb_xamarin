@@ -11,7 +11,7 @@ namespace NCMBClient
         public string Name { get; }
         private JObject _fields;
         private Dictionary<string, object> _objects;
-        private NCMB _ncmb;
+        public NCMB _ncmb;
         
         public NCMBObject(NCMB ncmb, string name)
         {
@@ -21,45 +21,46 @@ namespace NCMBClient
             _objects = new Dictionary<string, object>();
         }
 
-        public NCMBObject Set(string key, string value)
+        public void Set(string key, string value)
         {
             _fields[key] = value;
-            return this;
         }
 
-        public NCMBObject Set(string key, int value)
+        public void Set(string key, int value)
         {
             _fields[key] = value;
-            return this;
         }
 
-        public NCMBObject Set(string key, DateTime value)
+        public void Set(string key, DateTime value)
         {
             _fields[key] = value;
-            return this;
         }
 
 
-        public NCMBObject Set(string key, bool value)
+        public void Set(string key, bool value)
         {
             _fields[key] = value;
-            return this;
         }
 
-        public NCMBObject Set(string key, JObject value)
+        public void Set(string key, JObject value)
         {
             _fields[key] = value;
-            return this;
         }
-        public NCMBObject Set(string key, JArray value)
+        public void Set(string key, JArray value)
         {
             _fields[key] = value;
-            return this;
         }
-        public NCMBObject Set(string key, NCMBObject value)
+        public void Set(string key, NCMBObject value)
         {
             _objects.Add(key, value);
-            return this;
+        }
+        public void Remove(string key)
+        {
+            if (_fields.ContainsKey(key))
+            {
+                _fields.Remove(key);
+            }
+            
         }
 
         public object Get(string key)
@@ -67,10 +68,16 @@ namespace NCMBClient
             return _objects.ContainsKey(key) ? _objects[key] : _fields.GetValue(key);
         }
 
+        public JObject GetAllFields()
+        {
+            return _fields;
+        }
+
         public T Get<T>(string key) => (T)Get(key);
 
-        public NCMBObject Sets(JObject query)
+        public void Sets(JObject query)
         {
+            Console.WriteLine(query);
             foreach (KeyValuePair<string, JToken> key in query)
             {
                 switch (key.Value.Type)
@@ -90,6 +97,9 @@ namespace NCMBClient
                     case JTokenType.Array:
                         this.Set(key.Key, (JArray) key.Value);
                         break;
+                    case JTokenType.Null:
+                        this._fields[key.Key] = null;
+                        break;
                     default:
                         var obj = (JObject)key.Value;
                         if (obj.ContainsKey("__type") && ((string) obj["__type"]) == "Date")
@@ -102,18 +112,20 @@ namespace NCMBClient
                         break;
                 }
             }
-            return this;
         }
 
-        public NCMBObject Save()
+        public Boolean Save()
         {
             var r = GetRequest();
             var response = r.Exec();
+            if (response.ContainsKey("error")) {
+                return false;
+            }
             Sets(response);
-            return this;
+            return true;
         }
 
-        private NCMBRequest GetRequest()
+        public NCMBRequest GetRequest()
         {
             NCMBRequest r = new NCMBRequest(_ncmb);
             r.Name = Name;
@@ -185,10 +197,9 @@ namespace NCMBClient
             return true;
         }
 
-        private JObject GetData()
+        public JObject GetData()
         {
             var results = new JObject();
-            Console.WriteLine(_objects);
             foreach (var key in _objects)
             {
                 var data = new JObject();

@@ -132,6 +132,32 @@ hello.Set("time", DateTime.Now);
 await hello.SaveAsync();
 ```
 
+#### ACLの利用
+
+権限管理（ACL）NCMBAclを使います。
+
+```cs
+var message = "Hello, world";
+var item = _ncmb.Object("DataStoreTest");
+item.Set("message", message);
+var acl = _ncmb.Acl();
+acl.SetPublicReadAccess(true);
+acl.SetPublicWriteAccess(false);
+acl.SetRoleReadAccess("admin", true);
+acl.SetRoleWriteAccess("admin", true);
+item.SetAcl(acl);
+item.Save();
+```
+
+用意されているのは次のメソッドです。
+
+- SetPublicReadAccess(Boolean bol)
+- SetPublicWriteAccess(Boolean bol)
+- SetUserReadAccess(NCMBUser user, Boolean bol)
+- SetUserWriteAccess(NCMBUser user, Boolean bol)
+- SetRoleReadAccess(String name, Boolean bol)
+- SetRoleWriteAccess(String name, Boolean bol)
+
 #### データのアクセス
 
 返却値は object 型なので、必要な型にキャストするか型引数を指定するバージョンを使用してください。

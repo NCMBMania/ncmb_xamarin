@@ -11,6 +11,7 @@ namespace NCMBClient
         public string Name { get; }
         private JObject _fields;
         private Dictionary<string, object> _objects;
+        private NCMBAcl _acl;
         public NCMB _ncmb;
         
         public NCMBObject(NCMB ncmb, string name)
@@ -54,6 +55,11 @@ namespace NCMBClient
         {
             _objects.Add(key, value);
         }
+        public void SetAcl(NCMBAcl acl)
+        {
+            _acl = acl;
+        }
+
         public void Remove(string key)
         {
             if (_fields.ContainsKey(key))
@@ -77,7 +83,6 @@ namespace NCMBClient
 
         public void Sets(JObject query)
         {
-            Console.WriteLine(query);
             foreach (KeyValuePair<string, JToken> key in query)
             {
                 switch (key.Value.Type)
@@ -213,6 +218,10 @@ namespace NCMBClient
             foreach (KeyValuePair<string, JToken> key in _fields)
             {
                 results[key.Key] = key.Value;
+            }
+            if (_acl != null)
+            {
+                results["acl"] = _acl.JObject();
             }
             return (JObject) results.DeepClone();
         }

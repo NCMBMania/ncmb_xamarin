@@ -28,6 +28,11 @@ namespace NCMBClient
             return new NCMBUser(this);
         }
 
+        public NCMBAcl Acl()
+        {
+            return new NCMBAcl();
+        }
+
         public void Logout()
         {
             SessionToken = null;

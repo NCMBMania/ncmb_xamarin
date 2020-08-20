@@ -45,6 +45,23 @@ namespace NCMBClientTest
         }
 
         [Test()]
+        public void TestSaveAndDeleteWithAclSync()
+        {
+            var message = "Hello, world";
+            var item = _ncmb.Object("DataStoreTest");
+            item.Set("message", message);
+            var acl = _ncmb.Acl();
+            acl.SetPublicReadAccess(true);
+            acl.SetPublicWriteAccess(false);
+            acl.SetRoleReadAccess("admin", true);
+            acl.SetRoleWriteAccess("admin", true);
+            item.SetAcl(acl);
+            item.Save();
+            Assert.NotNull(item.Get("objectId"));
+            Assert.AreEqual(item.Get("message").ToString(), message);
+        }
+
+        [Test()]
         public void TestSaveAndFetchASync()
         {
             Task.Run(async () =>

@@ -12,8 +12,8 @@ namespace NCMBClientTest
 
         public NCMBObjectTest()
         {
-            var ApplicationKey = "08068a4622540e7586869a9bc4de3655967d8282a0bb6463787c849dc8daee87";
-            var ClientKey = "ab48936a4f392b7517c2cf241cb0049753409a1845f7a429c812aca602844395";
+            var ApplicationKey = "9170ffcb91da1bbe0eff808a967e12ce081ae9e3262ad3e5c3cac0d9e54ad941";
+            var ClientKey = "9e5014cd2d76a73b4596deffdc6ec4028cfc1373529325f8e71b7a6ed553157d";
             _ncmb = new NCMB(ApplicationKey, ClientKey);
         }
 

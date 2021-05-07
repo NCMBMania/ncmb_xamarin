@@ -120,6 +120,29 @@ namespace NCMBClient
             return SetOperand(name, value, "$all");
         }
 
+        public NCMBQuery RelatedTo(NCMBObject obj, string name)
+        {
+            var className = "";
+            if (obj.GetType() == typeof(NCMBUser)) {
+                className = "user";
+            }else if (obj.GetType() == typeof(NCMBRole))
+            {
+                className = "role";
+            }
+            else if (obj.GetType() == typeof(NCMBInstallation))
+            {
+                className = "installation";
+            } else
+            {
+                className = obj.Name;
+            }
+            var data = new JObject();
+            data["object"] = obj.ToPointer();
+            data["key"] = name;
+            where["$relatedTo"] = data;
+            return this;
+        }
+
         public NCMBQuery SetOperand(string name, object value, string ope = null)
         {
             if (value is DateTime)

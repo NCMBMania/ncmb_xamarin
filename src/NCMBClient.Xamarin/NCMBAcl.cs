@@ -17,32 +17,100 @@ namespace NCMBClient
             _fields.Add("*", p);
         }
 
-        public void SetPublicReadAccess(Boolean bol)
+        public NCMBAcl SetPublicReadAccess(Boolean bol)
         {
             SetPermission("*", "read", bol);
+            return this;
         }
-        public void SetPublicWriteAccess(Boolean bol)
+        public NCMBAcl SetPublicWriteAccess(Boolean bol)
         {
             SetPermission("*", "write", bol);
+            return this;
         }
-        public void SetUserReadAccess(NCMBUser user, Boolean bol)
+        public NCMBAcl SetUserReadAccess(NCMBUser user, Boolean bol)
         {
             SetPermission(user.ObjectId(), "read", bol);
+            return this;
         }
-        public void SetUserWriteAccess(NCMBUser user, Boolean bol)
+        public NCMBAcl SetUserWriteAccess(NCMBUser user, Boolean bol)
         {
             SetPermission(user.ObjectId(), "write", bol);
+            return this;
         }
-        public void SetRoleReadAccess(String name, Boolean bol)
+        public NCMBAcl SetRoleReadAccess(String name, Boolean bol)
         {
             SetPermission($"role:{name}", "read", bol);
+            return this;
         }
-        public void SetRoleWriteAccess(String name, Boolean bol)
+        public NCMBAcl SetRoleWriteAccess(String name, Boolean bol)
         {
             SetPermission($"role:{name}", "write", bol);
+            return this;
         }
 
-        private void SetPermission(String key, String type, Boolean bol)
+        public NCMBAcl SetPublicAccess(JObject obj)
+        {
+            if ((bool) obj["read"] == true)
+            {
+                this.SetPublicReadAccess(true);
+            }
+            if ((bool)obj["write"] == true)
+            {
+                this.SetPublicWriteAccess(true);
+            }
+            return this;
+        }
+
+        public NCMBAcl SetRoleAccess(string name, JObject obj)
+        {
+            name = name.Replace("role:", "");
+            if ((bool)obj["read"] == true)
+            {
+                this.SetRoleReadAccess(name, true);
+            }
+            if ((bool)obj["write"] == true)
+            {
+                this.SetRoleWriteAccess(name, true);
+            }
+            return this;
+        }
+
+        public NCMBAcl SetUserAccess(string objectId, JObject obj)
+        {
+            var user = new NCMBUser(null);
+            user.Set("objectId", objectId);
+            if ((bool)obj["read"] == true)
+            {
+                this.SetUserReadAccess(user, true);
+            }
+            if ((bool)obj["write"] == true)
+            {
+                this.SetUserWriteAccess(user, true);
+            }
+            return this;
+        }
+
+        public NCMBAcl Sets(JObject query)
+        {
+            foreach (KeyValuePair<string, JToken> key in query)
+            {
+                if (key.Key == "*")
+                {
+                    this.SetPublicAccess((JObject) key.Value);
+                }
+                else if (key.Key.StartsWith("role:"))
+                {
+                    this.SetRoleAccess(key.Key, (JObject)key.Value);
+                }
+                else
+                {
+                    this.SetUserAccess(key.Key, (JObject)key.Value);
+                }
+            }
+            return this;
+        }
+
+        private NCMBAcl SetPermission(String key, String type, Boolean bol)
         {
             var p = new JObject();
             if (_fields.ContainsKey(key))
@@ -51,6 +119,7 @@ namespace NCMBClient
             }
             p[type] = bol;
             _fields[key] = p;
+            return this;
         }
 
         public JObject JObject()

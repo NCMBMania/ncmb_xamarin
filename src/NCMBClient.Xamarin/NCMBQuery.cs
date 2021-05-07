@@ -11,6 +11,8 @@ namespace NCMBClient
         private JObject where;
         private int _limit;
         private string _order;
+        private string _include;
+        private int _skip;
         private NCMB _ncmb;
         public NCMBQuery(NCMB ncmb, string name)
         {
@@ -19,15 +21,38 @@ namespace NCMBClient
             this.where = new JObject();
         }
 
-        public NCMBQuery Order(string name)
+        public NCMBQuery Order(string name, bool descending = true)
         {
-            _order = name;
+            string symbol = "";
+            if (descending)
+            {
+                symbol = "-";
+            }
+            if (_order == "")
+            {
+                _order = $"{symbol}${name}";
+            } else
+            {
+                _order = $"${_order},{symbol}${name}";
+            }
             return this;
         }
 
         public NCMBQuery Limit(int num)
         {
             _limit = num;
+            return this;
+        }
+
+        public NCMBQuery Include(string name)
+        {
+            _include = name;
+            return this;
+        }
+
+        public NCMBQuery Skip(int num)
+        {
+            _skip = num;
             return this;
         }
 
@@ -140,18 +165,34 @@ namespace NCMBClient
             return this;
         }
 
-        public NCMBObject[] Find()
+        public NCMBObject[] FindAll()
         {
             var r = GetClient();
             var results = r.Exec();
             return ConvertResults(results);
         }
 
-        public async Task<NCMBObject[]> FindAsync()
+        public async Task<NCMBObject[]> FindAllAsync()
         {
             var r = GetClient();
             var results = await r.ExecAsync();
             return ConvertResults(results);
+        }
+
+        public NCMBObject Find()
+        {
+            _limit = 1;
+            var r = GetClient();
+            var results = r.Exec();
+            return ConvertResults(results)[0];
+        }
+
+        public async Task<NCMBObject> FindAsync()
+        {
+            _limit = 1;
+            var r = GetClient();
+            var results = await r.ExecAsync();
+            return (NCMBObject) ConvertResults(results)[0];
         }
 
         private NCMBRequest GetClient()
@@ -160,6 +201,22 @@ namespace NCMBClient
             if (where.Count > 0)
             {
                 queries.Add("where", where);
+            }
+            if (_limit > 0)
+            {
+                queries.Add("limit", _limit);
+            }
+            if (!(_order is null))
+            {
+                queries.Add("order", _order);
+            }
+            if (!(_include is null))
+            {
+                queries.Add("include", _include);
+            }
+            if (_skip > 0)
+            {
+                queries.Add("skip", _skip);
             }
             var r = new NCMBRequest(_ncmb);
             r.Name = Name;

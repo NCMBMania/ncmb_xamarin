@@ -85,6 +85,8 @@ namespace NCMBClient
         {
             foreach (KeyValuePair<string, JToken> key in query)
             {
+                if (key.Key == "__type") continue;
+                if (key.Key == "className") continue;
                 switch (key.Value.Type)
                 {
                     case JTokenType.String:
@@ -107,9 +109,20 @@ namespace NCMBClient
                         break;
                     default:
                         var obj = (JObject)key.Value;
-                        if (obj.ContainsKey("__type") && ((string) obj["__type"]) == "Date")
+                        if (obj.ContainsKey("__type") && ((string)obj["__type"]) == "Date")
                         {
-                            this.Set(key.Key, DateTime.Parse((string) obj["iso"]));
+                            this.Set(key.Key, DateTime.Parse((string)obj["iso"]));
+                        }
+                        else if (obj.ContainsKey("__type") && ((string)obj["__type"]) == "Object")
+                        {
+                            var ChildObject = new NCMBObject(_ncmb, (string)obj["className"]);
+                            ChildObject.Sets((JObject)obj);
+                            this.Set(key.Key, ChildObject);
+                        } else if (key.Key == "acl")
+                        {
+                            var acl = new NCMBAcl();
+                            acl.Sets((JObject)key.Value);
+                            this.SetAcl(acl);
                         } else
                         {
                             this.Set(key.Key, (JObject)key.Value);

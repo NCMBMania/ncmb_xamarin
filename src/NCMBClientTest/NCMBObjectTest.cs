@@ -8,20 +8,18 @@ namespace NCMBClientTest
     [TestFixture()]
     public class NCMBObjectTest
     {
-        private NCMB _ncmb;
-
         public NCMBObjectTest()
         {
             var ApplicationKey = "9170ffcb91da1bbe0eff808a967e12ce081ae9e3262ad3e5c3cac0d9e54ad941";
             var ClientKey = "9e5014cd2d76a73b4596deffdc6ec4028cfc1373529325f8e71b7a6ed553157d";
-            _ncmb = new NCMB(ApplicationKey, ClientKey);
+            new NCMB(ApplicationKey, ClientKey);
         }
 
         [Test()]
         public void TestSaveAndDeleteSync()
         {
             var message = "Hello, world";
-            var item = _ncmb.Object("DataStoreTest");
+            var item = new NCMBObject("DataStoreTest");
             item.Set("message", message);
             item.Save();
             Assert.NotNull(item.Get("objectId"));
@@ -35,7 +33,7 @@ namespace NCMBClientTest
             Task.Run(async () =>
             {
                 var message = "Hello, world";
-                var item = _ncmb.Object("DataStoreTest");
+                var item = new NCMBObject("DataStoreTest");
                 item.Set("message", message);
                 await item.SaveAsync();
                 Assert.NotNull(item.Get("objectId"));
@@ -48,9 +46,9 @@ namespace NCMBClientTest
         public void TestSaveAndDeleteWithAclSync()
         {
             var message = "Hello, world";
-            var item = _ncmb.Object("DataStoreTest");
+            var item = new NCMBObject("DataStoreTest");
             item.Set("message", message);
-            var acl = _ncmb.Acl();
+            var acl = new NCMBAcl();
             acl.SetPublicReadAccess(true);
             acl.SetPublicWriteAccess(false);
             acl.SetRoleReadAccess("admin", true);
@@ -67,12 +65,12 @@ namespace NCMBClientTest
             Task.Run(async () =>
             {
                 var message = "Hello, world";
-                var item = _ncmb.Object("DataStoreTest");
+                var item = new NCMBObject("DataStoreTest");
                 item.Set("message", message);
                 await item.SaveAsync();
                 Assert.NotNull(item.ObjectId());
                 var objectId = item.ObjectId();
-                var newItem = _ncmb.Object("DataStoreTest");
+                var newItem = new NCMBObject("DataStoreTest");
                 newItem.Set("objectId", objectId);
                 await newItem.FetchAsync();
                 Assert.AreEqual(item.ObjectId(), newItem.ObjectId());
@@ -85,12 +83,12 @@ namespace NCMBClientTest
         public void TestSaveAndFetchSync()
         {
             var message = "Hello, world";
-            var item = _ncmb.Object("DataStoreTest");
+            var item = new NCMBObject("DataStoreTest");
             item.Set("message", message);
             item.Save();
             Assert.NotNull(item.ObjectId());
             var objectId = item.ObjectId();
-            var newItem = _ncmb.Object("DataStoreTest");
+            var newItem = new NCMBObject("DataStoreTest");
             newItem.Set("objectId", objectId);
             newItem.Fetch();
             Assert.AreEqual(item.ObjectId(), newItem.ObjectId());

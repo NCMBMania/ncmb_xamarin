@@ -13,11 +13,10 @@ namespace NCMBClient
         private string _order;
         private string _include;
         private int _skip;
-        private NCMB _ncmb;
-        public NCMBQuery(NCMB ncmb, string name)
+        public static NCMB _ncmb;
+        public NCMBQuery(string name)
         {
             this.Name = name;
-            this._ncmb = ncmb;
             this.where = new JObject();
         }
 
@@ -218,7 +217,7 @@ namespace NCMBClient
             {
                 queries.Add("skip", _skip);
             }
-            var r = new NCMBRequest(_ncmb);
+            var r = new NCMBRequest();
             r.Name = Name;
             r.Queries = queries;
             r.Method = "GET";
@@ -233,7 +232,7 @@ namespace NCMBClient
             var i = 0;
             foreach (var row in ary)
             {
-                var obj = _ncmb.Object(Name);
+                var obj = new NCMBObject(Name);
                 obj.Sets((JObject)row);
                 objs[i] = obj;
                 i++;

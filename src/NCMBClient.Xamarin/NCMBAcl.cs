@@ -77,7 +77,7 @@ namespace NCMBClient
 
         public NCMBAcl SetUserAccess(string objectId, JObject obj)
         {
-            var user = new NCMBUser(null);
+            var user = new NCMBUser();
             user.Set("objectId", objectId);
             if ((bool)obj["read"] == true)
             {

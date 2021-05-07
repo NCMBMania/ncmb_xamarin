@@ -15,7 +15,7 @@
     <PackageTags>Nifcloud mBaaS Xamarin</PackageTags>
     <NeutralLanguage />
     <Version>0.4.0</Version>
-    <ReleaseVersion>0.4</ReleaseVersion>
+    <ReleaseVersion>0.2</ReleaseVersion>
   </PropertyGroup>
 
   <ItemGroup>

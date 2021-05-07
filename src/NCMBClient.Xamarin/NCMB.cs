@@ -11,32 +11,10 @@ namespace NCMBClient
         {
             this.ApplicationKey = applicationKey;
             this.ClientKey = clientKey;
+            NCMBObject._ncmb = this;
+            NCMBQuery._ncmb = this;
+            NCMBUser._ncmb = this;
+            NCMBRequest._ncmb = this;
         }
-
-        public NCMBObject Object(string name)
-        {
-            return new NCMBObject(this, name);
-        }
-
-        public NCMBQuery Query(string name)
-        {
-            return new NCMBQuery(this, name);
-        }
-
-        public NCMBUser User()
-        {
-            return new NCMBUser(this);
-        }
-
-        public NCMBAcl Acl()
-        {
-            return new NCMBAcl();
-        }
-
-        public void Logout()
-        {
-            SessionToken = null;
-        }
-
     }
 }

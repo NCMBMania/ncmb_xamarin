@@ -40,6 +40,7 @@
     <Compile Include="NCMBObjectTest.cs" />
     <Compile Include="NCMBQueryTest.cs" />
     <Compile Include="NCMBUserTest.cs" />
+    <Compile Include="NCMBRelationTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

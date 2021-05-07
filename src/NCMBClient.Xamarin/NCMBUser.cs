@@ -8,15 +8,19 @@ namespace NCMBClient
 {
     public class NCMBUser : NCMBObject
     {
-        public NCMBUser(NCMB ncmb) : base(ncmb, "users")
+        public NCMBUser() : base("users")
         {
-            this._ncmb = ncmb;
+        }
+
+        static public void Logout()
+        {
+            _ncmb.SessionToken = null;
         }
 
         public NCMBUser SignUp()
         {
             this.Save();
-            this._ncmb.SessionToken = this.Get("sessionToken").ToString();
+            NCMBUser._ncmb.SessionToken = this.Get("sessionToken").ToString();
             this.Remove("sessionToken");
             return this;
         }
@@ -56,13 +60,13 @@ namespace NCMBClient
 
         private void ToSession()
         {
-            this._ncmb.SessionToken = this.Get("sessionToken").ToString();
+            NCMBUser._ncmb.SessionToken = this.Get("sessionToken").ToString();
             this.Remove("sessionToken");
         }
 
         private NCMBRequest GetLoginRequest()
         {
-            NCMBRequest r = new NCMBRequest(_ncmb);
+            NCMBRequest r = new NCMBRequest();
             r.Name = Name;
             r.Queries = GetData();
             r.Method = "GET";

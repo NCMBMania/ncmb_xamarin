@@ -11,53 +11,71 @@ namespace NCMBClient
         public string Name { get; }
         private JObject _fields;
         private Dictionary<string, object> _objects;
+        private Dictionary<string, object> _relations;
         private NCMBAcl _acl;
-        public NCMB _ncmb;
+        public static NCMB _ncmb;
         
-        public NCMBObject(NCMB ncmb, string name)
+        public NCMBObject(string name)
         {
-            _ncmb = ncmb;
             this.Name = name;
             _fields = new JObject();
             _objects = new Dictionary<string, object>();
+            _relations = new Dictionary<string, object>();
         }
 
-        public void Set(string key, string value)
+        public NCMBObject Set(string key, string value)
         {
             _fields[key] = value;
+            return this;
         }
 
-        public void Set(string key, int value)
+        public NCMBObject Set(string key, int value)
         {
             _fields[key] = value;
+            return this;
         }
 
-        public void Set(string key, DateTime value)
+        public NCMBObject Set(string key, DateTime value)
         {
             _fields[key] = value;
+            return this;
         }
 
 
-        public void Set(string key, bool value)
+        public NCMBObject Set(string key, bool value)
         {
             _fields[key] = value;
+            return this;
         }
 
-        public void Set(string key, JObject value)
+        public NCMBObject Set(string key, JObject value)
         {
             _fields[key] = value;
+            return this;
         }
-        public void Set(string key, JArray value)
+        public NCMBObject Set(string key, JArray value)
         {
             _fields[key] = value;
+            return this;
         }
-        public void Set(string key, NCMBObject value)
+        public NCMBObject Set(string key, NCMBObject value)
         {
             _objects.Add(key, value);
+            return this;
         }
-        public void SetAcl(NCMBAcl acl)
+        public NCMBObject SetAcl(NCMBAcl acl)
         {
             _acl = acl;
+            return this;
+        }
+        public NCMBObject Set(string key, NCMBRelation value)
+        {
+            if (_relations.ContainsKey(key))
+            {
+                _relations.Remove(key);
+            }
+            _relations.Add(key, value);
+            return this;
         }
 
         public void Remove(string key)
@@ -115,7 +133,7 @@ namespace NCMBClient
                         }
                         else if (obj.ContainsKey("__type") && ((string)obj["__type"]) == "Object")
                         {
-                            var ChildObject = new NCMBObject(_ncmb, (string)obj["className"]);
+                            var ChildObject = new NCMBObject((string)obj["className"]);
                             ChildObject.Sets((JObject)obj);
                             this.Set(key.Key, ChildObject);
                         } else if (key.Key == "acl")
@@ -145,7 +163,7 @@ namespace NCMBClient
 
         public NCMBRequest GetRequest()
         {
-            NCMBRequest r = new NCMBRequest(_ncmb);
+            NCMBRequest r = new NCMBRequest();
             r.Name = Name;
             r.Fields = GetData();
             if (_fields.ContainsKey("objectId"))
@@ -170,7 +188,7 @@ namespace NCMBClient
 
         public bool Delete()
         {
-            NCMBRequest r = new NCMBRequest(_ncmb);
+            NCMBRequest r = new NCMBRequest();
             r.Method = "DELETE";
             r.Name = Name;
             r.ObjectId = ObjectId();
@@ -180,7 +198,7 @@ namespace NCMBClient
 
         public async Task<bool> DeleteAsync()
         {
-            NCMBRequest r = new NCMBRequest(_ncmb);
+            NCMBRequest r = new NCMBRequest();
             r.Method = "DELETE";
             r.Name = Name;
             r.ObjectId = ObjectId();
@@ -195,7 +213,7 @@ namespace NCMBClient
 
         public async Task<bool> FetchAsync()
         {
-            NCMBRequest r = new NCMBRequest(_ncmb);
+            NCMBRequest r = new NCMBRequest();
             r.Method = "GET";
             r.Name = Name;
             r.ObjectId = ObjectId();
@@ -206,13 +224,22 @@ namespace NCMBClient
 
         public bool Fetch()
         {
-            NCMBRequest r = new NCMBRequest(_ncmb);
+            NCMBRequest r = new NCMBRequest();
             r.Method = "GET";
             r.Name = Name;
             r.ObjectId = ObjectId();
             var response = r.Exec();
             Sets(response);
             return true;
+        }
+
+        public JObject ToPointer()
+        {
+            var data = new JObject();
+            data["__type"] = "Pointer";
+            data["className"] = this.Name;
+            data["objectId"] = this.Get("objectId").ToString();
+            return data;
         }
 
         public JObject GetData()
@@ -226,8 +253,14 @@ namespace NCMBClient
                 data.Add("className", obj.Name);
                 var objectId = obj.Get("objectId");
                 data.Add("objectId", objectId.ToString());
-                results[key.Key] = data;
+                results[key.Key] = obj.ToPointer();
             }
+
+            foreach (var key in _relations)
+            {
+                results[key.Key] = ((NCMBRelation)key.Value).ToJson();
+            }
+
             foreach (KeyValuePair<string, JToken> key in _fields)
             {
                 results[key.Key] = key.Value;

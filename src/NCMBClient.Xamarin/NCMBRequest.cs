@@ -10,17 +10,16 @@ namespace NCMBClient
 {
     public class NCMBRequest
     {
-        private NCMB _ncmb;
         public String Method;
         public String Name;
         public JObject Fields;
         public String ObjectId;
         public JObject Queries;
         public String Path;
+        public static NCMB _ncmb;
 
-        public NCMBRequest(NCMB ncmb)
+        public NCMBRequest()
         {
-            _ncmb = ncmb;
         }
 
         private String FieldToString()
@@ -53,14 +52,14 @@ namespace NCMBClient
         {
             var headers = new Hashtable()
             {
-                { "X-NCMB-Application-Key", _ncmb.ApplicationKey },
+                { "X-NCMB-Application-Key", NCMBRequest._ncmb.ApplicationKey },
                 { "X-NCMB-Timestamp", time.ToString("yyyy-MM-ddTHH:mm:ss.fffZ") },
                 { "X-NCMB-Signature", signature },
                 { "Content-Type", "application/json" }
             };
             if (_ncmb.SessionToken != null)
             {
-                headers.Add("X-NCMB-Apps-Session-Token", _ncmb.SessionToken);
+                headers.Add("X-NCMB-Apps-Session-Token", NCMBRequest._ncmb.SessionToken);
             }
             return headers;
         }
@@ -78,7 +77,7 @@ namespace NCMBClient
 
         public JObject Exec()
         {
-            var s = new NCMBSignature(_ncmb.ApplicationKey, _ncmb.ClientKey);
+            var s = new NCMBSignature(NCMBRequest._ncmb.ApplicationKey, NCMBRequest._ncmb.ClientKey);
             s.Method = Method;
             s.Name = Name;
             s.ObjectId = ObjectId;
@@ -104,7 +103,7 @@ namespace NCMBClient
 
         public async Task<JObject> ExecAsync()
         {
-            var s = new NCMBSignature(_ncmb.ApplicationKey, _ncmb.ClientKey);
+            var s = new NCMBSignature(NCMBRequest._ncmb.ApplicationKey, NCMBRequest._ncmb.ClientKey);
             s.Method = Method;
             s.Name = Name;
             s.ObjectId = ObjectId;

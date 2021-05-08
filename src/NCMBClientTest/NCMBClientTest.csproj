@@ -41,6 +41,7 @@
     <Compile Include="NCMBQueryTest.cs" />
     <Compile Include="NCMBUserTest.cs" />
     <Compile Include="NCMBRelationTest.cs" />
+    <Compile Include="NCMBRoleTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

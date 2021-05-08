@@ -90,7 +90,7 @@ namespace NCMBClient
             var response = "";
             if (Method == "GET")
             {
-                // Console.WriteLine(s.Url());
+                Console.WriteLine(s.Url());
                 response = System.Text.Encoding.UTF8.GetString(client.DownloadData(new Uri(s.Url())));
             }
             else

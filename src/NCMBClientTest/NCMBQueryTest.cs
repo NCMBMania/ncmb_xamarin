@@ -15,7 +15,7 @@ namespace NCMBClientTest
         }
 
         [Test()]
-        public void TestFindSync()
+        public void TestFetchSync()
         {
             for (var i = 0; i < 5; i++)
             {
@@ -26,10 +26,10 @@ namespace NCMBClientTest
             }
             var query = new NCMBQuery("QueryTest");
             query.EqualTo("message", "Test message").GreaterThanOrEqualTo("number", 502);
-            var results = query.FindAll();
+            var results = query.FetchAll();
             Assert.AreEqual(results.Length, 3);
             query = new NCMBQuery("QueryTest");
-            results = query.FindAll();
+            results = query.FetchAll();
             foreach (var obj in results)
             {
                 obj.Delete();
@@ -38,7 +38,7 @@ namespace NCMBClientTest
         }
 
         [Test()]
-        public void TestFindASync()
+        public void TestFetchASync()
         {
             Task.Run(async () =>
             {
@@ -51,10 +51,10 @@ namespace NCMBClientTest
                 }
                 var query = new NCMBQuery("QueryTest");
                 query.EqualTo("message", "Test message").GreaterThanOrEqualTo("number", 502);
-                var results = await query.FindAllAsync();
+                var results = await query.FetchAllAsync();
                 Assert.AreEqual(results.Length, 3);
                 query = new NCMBQuery("QueryTest");
-                results = await query.FindAllAsync();
+                results = await query.FetchAllAsync();
                 foreach (var obj in results)
                 {
                     await obj.DeleteAsync();
@@ -63,7 +63,7 @@ namespace NCMBClientTest
         }
 
         [Test()]
-        public void TestFindLimitASync()
+        public void TestFetchLimitASync()
         {
             Task.Run(async () =>
             {
@@ -76,14 +76,14 @@ namespace NCMBClientTest
                 }
                 var query = new NCMBQuery("QueryTest");
                 query.EqualTo("message", "Test message");
-                var results = await query.FindAllAsync();
+                var results = await query.FetchAllAsync();
                 Assert.AreEqual(results.Length, 5);
                 query = new NCMBQuery("QueryTest");
                 query.EqualTo("message", "Test message").Limit(2);
-                results = await query.FindAllAsync();
+                results = await query.FetchAllAsync();
                 Assert.AreEqual(results.Length, 2);
                 query = new NCMBQuery("QueryTest");
-                results = await query.FindAllAsync();
+                results = await query.FetchAllAsync();
                 foreach (var obj in results)
                 {
                     await obj.DeleteAsync();
@@ -92,7 +92,7 @@ namespace NCMBClientTest
         }
 
         [Test()]
-        public void TestFindPointerASync()
+        public void TestFetchPointerASync()
         {
             Task.Run(async () =>
             {
@@ -109,7 +109,7 @@ namespace NCMBClientTest
 
                 var query = new NCMBQuery("QueryTest");
                 query.EqualTo("objectId", item2.Get("objectId")).Include("obj");
-                var obj = await query.FindAsync();
+                var obj = await query.FetchAsync();
                 Assert.AreEqual(obj.Get("objectId"), item2.Get("objectId"));
                 Assert.AreEqual(((NCMBObject) obj.Get("obj")).Get("objectId"), item1.Get("objectId"));
                 

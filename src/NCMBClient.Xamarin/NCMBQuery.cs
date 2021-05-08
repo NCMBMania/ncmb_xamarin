@@ -187,21 +187,21 @@ namespace NCMBClient
             return this;
         }
 
-        public NCMBObject[] FindAll()
+        public NCMBObject[] FetchAll()
         {
             var r = GetClient();
             var results = r.Exec();
             return ConvertResults(results);
         }
 
-        public async Task<NCMBObject[]> FindAllAsync()
+        public async Task<NCMBObject[]> FetchAllAsync()
         {
             var r = GetClient();
             var results = await r.ExecAsync();
             return ConvertResults(results);
         }
 
-        public NCMBObject Find()
+        public NCMBObject Fetch()
         {
             _limit = 1;
             var r = GetClient();
@@ -209,7 +209,7 @@ namespace NCMBClient
             return ConvertResults(results)[0];
         }
 
-        public async Task<NCMBObject> FindAsync()
+        public async Task<NCMBObject> FetchAsync()
         {
             _limit = 1;
             var r = GetClient();

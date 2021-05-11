@@ -59,7 +59,7 @@ namespace NCMBClient
             };
             if (_ncmb.SessionToken != null)
             {
-                headers.Add("X-NCMB-Apps-Session-Token", NCMBRequest._ncmb.SessionToken);
+                headers.Add("X-NCMB-Apps-Session-Token", _ncmb.SessionToken);
             }
             return headers;
         }
@@ -69,6 +69,7 @@ namespace NCMBClient
             var client = new WebClient();
             foreach (string key in headers.Keys)
             {
+                // Console.WriteLine($"{key} {headers[key].ToString()}");
                 client.Headers[key] = headers[key].ToString();
             }
             client.Encoding = Encoding.UTF8;
@@ -90,11 +91,15 @@ namespace NCMBClient
             var response = "";
             if (Method == "GET")
             {
-                Console.WriteLine(s.Url());
+                // Console.WriteLine(s.Url());
                 response = System.Text.Encoding.UTF8.GetString(client.DownloadData(new Uri(s.Url())));
             }
             else
             {
+                /*
+                Console.WriteLine(s.Url());
+                Console.WriteLine(FieldToString());
+                */
                 response = client.UploadString(s.Url(), Method, FieldToString());
             }
             if (Method == "DELETE" && response == "") return new JObject();

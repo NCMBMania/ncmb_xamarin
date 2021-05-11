@@ -88,5 +88,12 @@ namespace NCMBClientTest
             }).GetAwaiter().GetResult();
         }
 
+        public void TestLoginByEmail()
+        {
+            var emailAddress = "test@moongift.jp";
+            var password = "cA3hWAZLA2zTDnuh4";
+
+
+        }
     }
 }

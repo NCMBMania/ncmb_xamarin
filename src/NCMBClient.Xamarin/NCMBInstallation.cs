@@ -1,9 +1,9 @@
 ﻿using System;
 namespace NCMBClient
 {
-    public class NCMBInstallation
+    public class NCMBInstallation : NCMBObject
     {
-        public NCMBInstallation()
+        public NCMBInstallation(): base("installations")
         {
         }
     }

@@ -1,92 +1,171 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace NCMBClient
 {
     public class NCMBRole : NCMBObject
     {
+        private string __op;
+        private ArrayList users;
+        private ArrayList roles;
+
         public NCMBRole() : base("roles")
         {
+            ClearOperation();
         }
 
+        public void ClearOperation()
+        {
+            __op = "";
+            users = new ArrayList();
+            roles = new ArrayList();
+        }
+
+        private void SetOpe(string ope)
+        {
+            if (__op != "" && __op != ope)
+            {
+                throw new Exception($"Already set other operation {__op}");
+            }
+            __op = ope;
+        }
         public NCMBRole AddUser(NCMBUser user)
         {
-            var key = "belongUser";
-            return this.Add(key, user);
+            SetOpe("AddUser");
+            users.Add(user);
+            return this;
+            // return this.Add(key, user);
         }
 
         public NCMBRole RemoveUser(NCMBUser user)
         {
-            var key = "belongUser";
-            return this.Remove(key, user);
+            SetOpe("RemoveUser");
+            users.Add(user);
+            return this;
         }
 
         public NCMBRole AddRole(NCMBRole role)
         {
-            var key = "belongRole";
-            return this.Add(key, role);
+            SetOpe("AddRole");
+            roles.Add(role);
+            return this;
         }
 
         public NCMBRole RemoveRole(NCMBRole role)
         {
-            var key = "belongRole";
-            return this.Remove(key, role);
+            SetOpe("RemoveRole");
+            roles.Add(role);
+            return this;
         }
 
-        public NCMBQuery Query()
+        public static NCMBQuery Query()
         {
             return new NCMBQuery("roles");
         }
 
-        public NCMBRole[] FetchUser()
+        public NCMBUser[] FetchUser()
         {
-            var query = Query();
-            return (NCMBRole[])query.RelatedTo(this, "belongUser").FetchAll();
+            var query = NCMBUser.Query();
+            var ary = query.RelatedTo(this, "belongUser").FetchAll();
+            return ReturnUser(ary);
         }
 
-        public async Task<NCMBRole[]> FetchUserAsync()
+        public async Task<NCMBUser[]> FetchUserAsync()
         {
-            var query = Query();
-            return (NCMBRole[])await query.RelatedTo(this, "belongUser").FetchAllAsync();
+            var query = NCMBUser.Query();
+            var ary = await query.RelatedTo(this, "belongUser").FetchAllAsync();
+            return ReturnUser(ary);
+        }
+
+        public NCMBUser[] ReturnUser(NCMBObject[] ary)
+        {
+            if (ary.Length == 0)
+            {
+                return new NCMBUser[0];
+            }
+            var results = new NCMBUser[ary.Length];
+            var i = 0;
+            foreach (var obj in ary)
+            {
+                results[i] = (NCMBUser)obj;
+                i++;
+            }
+            return results;
         }
 
         public NCMBRole[] FetchRole()
         {
             var query = Query();
-            var roles = query.RelatedTo(this, "belongRole").FetchAll();
-            Console.WriteLine(roles[0].Get("objectId"));
-            return (NCMBRole[]) roles;
+            var ary = query.RelatedTo(this, "belongRole").FetchAll();
+            return ReturnRole(ary);
         }
 
         public async Task<NCMBRole[]> FetchRoleAsync()
         {
             var query = Query();
-            return (NCMBRole[]) await query.RelatedTo(this, "belongRole").FetchAllAsync();
+            var ary = await query.RelatedTo(this, "belongRole").FetchAllAsync();
+            return ReturnRole(ary);
         }
 
-        private NCMBRole Add(string key, NCMBObject obj)
+        public NCMBRole[] ReturnRole(NCMBObject[] ary)
         {
-            var relation = (NCMBRelation)this.Get(key);
-            if (relation is null)
+            if (ary.Length == 0)
             {
-                relation = new NCMBRelation();
+                return new NCMBRole[0];
             }
-            relation.Add(obj);
-            this.Set(key, relation);
-            return this;
+            var results = new NCMBRole[ary.Length];
+            var i = 0;
+            foreach (var obj in ary)
+            {
+                results[i] = (NCMBRole)obj;
+                i++;
+            }
+            return results;
         }
 
-        private NCMBRole Remove(string key, NCMBObject obj)
+        public new Boolean Save()
         {
-            var relation = (NCMBRelation)this.Get(key);
-            if (relation is null)
+            var relation = new NCMBRelation();
+            if (__op == "AddUser" || __op == "AddRole")
             {
-                relation = new NCMBRelation();
+                foreach (var user in users)
+                {
+                    relation.Add((NCMBUser) user);
+                }
+                foreach (var role in roles)
+                {
+                    relation.Add((NCMBRole)role);
+                }
             }
-            relation.Remove(obj);
-            this.Set(key, relation);
-            return this;
+            if (__op == "RemoveUser" || __op == "RemoveRole")
+            {
+                foreach (var user in users)
+                {
+                    relation.Remove((NCMBUser)user);
+                }
+                foreach (var role in roles)
+                {
+                    relation.Remove((NCMBRole)role);
+                }
+            }
+            if (__op == "AddUser" || __op == "RemoveUser")
+            {
+                this.Set("belongUser", relation);
+            }
+            if (__op == "AddRole" || __op == "RemoveRole")
+            {
+                this.Set("belongRole", relation);
+            }
+            if (users.Count == 0)
+            {
+                this._fields.Remove("belongUser");
+            }
+            if (roles.Count == 0)
+            {
+                this._fields.Remove("belongRole");
+            }
+            return base.Save();
         }
-
     }
 }

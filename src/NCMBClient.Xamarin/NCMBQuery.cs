@@ -255,9 +255,37 @@ namespace NCMBClient
             var i = 0;
             foreach (var row in ary)
             {
-                var obj = new NCMBObject(Name);
-                obj.Sets((JObject)row);
-                objs[i] = obj;
+                switch (Name)
+                {
+                    case "roles":
+                        {
+                            var obj = new NCMBRole();
+                            obj.Sets((JObject)row);
+                            objs[i] = obj;
+                        }
+                        break;
+                    case "installations":
+                        {
+                            var obj = new NCMBInstallation();
+                            obj.Sets((JObject)row);
+                            objs[i] = obj;
+                        }
+                        break;
+                    case "users":
+                        {
+                            var obj = new NCMBUser();
+                            obj.Sets((JObject)row);
+                            objs[i] = obj;
+                        }
+                        break;
+                    default:
+                        {
+                            var obj = new NCMBObject(Name);
+                            obj.Sets((JObject)row);
+                            objs[i] = obj;
+                        }
+                        break;
+                }
                 i++;
             }
             return objs;

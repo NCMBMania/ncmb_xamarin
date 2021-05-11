@@ -44,6 +44,14 @@ namespace NCMBClient
             }
             return false;
         }
+        
+        public static NCMBUser Login(string userName, string password)
+        {
+            var user = new NCMBUser();
+            user.Set("userName", userName).Set("password", password);
+            user.Login();
+            return user;
+        }
 
         public async Task<Boolean> LoginAsync()
         {
@@ -62,6 +70,26 @@ namespace NCMBClient
         {
             NCMBUser._ncmb.SessionToken = this.Get("sessionToken").ToString();
             this.Remove("sessionToken");
+        }
+
+        public static NCMBQuery Query()
+        {
+            return new NCMBQuery("users");
+        }
+
+        public new Boolean Save()
+        {
+            if (base._fields.ContainsKey("objectId")) {
+                var ary = new string[3] { "mailAddress", "password", "mailAddressConfirm" };
+                foreach (var key in ary)
+                {
+                    if (base._fields.ContainsKey(key))
+                    {
+                        base._fields.Remove(key);
+                    }
+                }
+            }
+            return base.Save();
         }
 
         private NCMBRequest GetLoginRequest()

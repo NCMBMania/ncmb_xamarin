@@ -9,7 +9,7 @@ namespace NCMBClient
     public class NCMBObject
     {
         public string Name { get; }
-        private JObject _fields;
+        public JObject _fields;
         private Dictionary<string, object> _objects;
         private Dictionary<string, object> _relations;
         private NCMBAcl _acl;
@@ -136,12 +136,18 @@ namespace NCMBClient
                             var ChildObject = new NCMBObject((string)obj["className"]);
                             ChildObject.Sets((JObject)obj);
                             this.Set(key.Key, ChildObject);
-                        } else if (key.Key == "acl")
+                        }
+                        else if (obj.ContainsKey("__type") && ((string)obj["__type"]) == "Relation")
+                        {
+                            // Do nothing
+                        }
+                        else if (key.Key == "acl")
                         {
                             var acl = new NCMBAcl();
                             acl.Sets((JObject)key.Value);
                             this.SetAcl(acl);
-                        } else
+                        }
+                        else
                         {
                             this.Set(key.Key, (JObject)key.Value);
                         }
@@ -153,6 +159,7 @@ namespace NCMBClient
         public Boolean Save()
         {
             var r = GetRequest();
+            // Console.WriteLine(GetData());
             var response = r.Exec();
             if (response.ContainsKey("error")) {
                 return false;
@@ -166,6 +173,7 @@ namespace NCMBClient
             NCMBRequest r = new NCMBRequest();
             r.Name = Name;
             r.Fields = GetData();
+            // Console.WriteLine(_fields);
             if (_fields.ContainsKey("objectId"))
             {
                 r.Method = "PUT";
@@ -237,7 +245,18 @@ namespace NCMBClient
         {
             var data = new JObject();
             data["__type"] = "Pointer";
-            data["className"] = this.Name;
+            switch (this.Name)
+            {
+                case "users":
+                    data["className"] = "user";
+                    break;
+                case "roles":
+                    data["className"] = "role";
+                    break;
+                default:
+                    data["className"] = this.Name;
+                    break;
+            }
             data["objectId"] = this.Get("objectId").ToString();
             return data;
         }

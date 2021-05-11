@@ -78,6 +78,5 @@ namespace NCMBClientTest
             Assert.AreEqual(items.Length, 2);
             Assert.AreEqual(items[0].Get("objectId").ToString(), item1.Get("objectId").ToString());
         }
-
     }
 }

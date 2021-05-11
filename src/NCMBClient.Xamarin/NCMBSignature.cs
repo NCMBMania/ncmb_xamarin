@@ -46,7 +46,7 @@ namespace NCMBClient
             if (Path != null) {
                 return $"{path}/{Path}";
             }
-            var defined = new List<string> { "users", "push", "role", "files", "installations" };
+            var defined = new List<string> { "users", "push", "roles", "files", "installations" };
 
             if (defined.IndexOf(Name) > -1) {
                 path = $"{path}/{Name}";

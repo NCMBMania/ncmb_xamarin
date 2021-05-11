@@ -13,11 +13,15 @@
     <RepositoryUrl>https://github.com/NCMBMania/ncmb_xamarin</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Nifcloud mBaaS Xamarin</PackageTags>
-    <NeutralLanguage />
-    <Version>0.4.0</Version>
-    <ReleaseVersion>0.2</ReleaseVersion>
+    <Version>0.7</Version>
+    <ReleaseVersion>0.7</ReleaseVersion>
+    <PackOnBuild>true</PackOnBuild>
+    <Configurations>Release;Debug</Configurations>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType></DebugType>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>

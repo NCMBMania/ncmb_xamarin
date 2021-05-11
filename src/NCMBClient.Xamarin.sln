@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NCMBClient", "NCMBClient.Xamarin\NCMBClient.csproj", "{D24F2AC6-1682-4AA4-9FBC-5D432086F2D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCMBClient", "NCMBClient.Xamarin\NCMBClient.csproj", "{D24F2AC6-1682-4AA4-9FBC-5D432086F2D3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NCMBClientTest", "NCMBClientTest\NCMBClientTest.csproj", "{4920E462-4114-4F3E-A9AF-E7671BD83F48}"
 EndProject
@@ -30,6 +30,6 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		description = @NCMB for Xamarin and C# application.\n
-		version = 0.2
+		version = 0.7
 	EndGlobalSection
 EndGlobal

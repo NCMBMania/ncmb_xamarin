@@ -11,7 +11,7 @@ NuGet から NCMBClient パッケージをインストールしてください�
 ### 初期化
 
 ```cs
-var ncmb = new NCMB("ea5...265", "fe3...615");
+new NCMB("ea5...265", "fe3...615");
 ```
 
 ### 会員管理
@@ -21,7 +21,7 @@ var ncmb = new NCMB("ea5...265", "fe3...615");
 **同期処理の場合**
 
 ```cs
-var user = this._ncmb.User();
+var user = new NCMBUser();
 user.Set("userName", "TestUser");
 user.Set("password", "TestPass");
 await user.SignUp();
@@ -30,7 +30,7 @@ await user.SignUp();
 **非同期処理の場合**
 
 ```cs
-var user = this._ncmb.User();
+var user = new NCMBUser();
 user.Set("userName", "TestUser");
 user.Set("password", "TestPass");
 await user.SignUpAsync();
@@ -41,7 +41,7 @@ await user.SignUpAsync();
 **同期処理の場合**
 
 ```cs
-var user = this._ncmb.User();
+var user = new NCMBUser();
 user.Set("userName", "TestLogin");
 user.Set("password", "TestLogin");
 if (user.Login())
@@ -56,7 +56,7 @@ if (user.Login())
 **非同期処理の場合**
 
 ```cs
-var user = this._ncmb.User();
+var user = new NCMBUser();
 user.Set("userName", "TestLogin");
 user.Set("password", "TestLogin");
 if (await user.LoginAsync())
@@ -85,7 +85,7 @@ await user.DeleteAsync();
 #### ログアウト
 
 ```cs
-_ncmb.Logout();
+NCMBUser.Logout();
 ```
 
 ### データストア
@@ -96,7 +96,7 @@ _ncmb.Logout();
 
 ```cs
 // データストアの操作
-var hello = ncmb.Object("Hello");
+var hello = new NCMBObject("Hello");
 hello.Set("message", "Hello world");
 hello.Set("number", 100);
 hello.Set("bol", true);
@@ -116,7 +116,7 @@ hello.Save();
 
 ```cs
 // データストアの操作
-var hello = ncmb.Object("Hello");
+var hello = new NCMBObject("Hello");
 hello.Set("message", "Hello world");
 hello.Set("number", 100);
 hello.Set("bol", true);
@@ -132,15 +132,23 @@ hello.Set("time", DateTime.Now);
 await hello.SaveAsync();
 ```
 
+#### キーチェーンメソッドの利用
+
+Setメソッドは自分自身を返すので、キーチェーンメソッドを利用できます。
+
+```cs
+hello.Set("message", "Hello world").Set("number", 100).Set("bol", true);
+```
+
 #### ACLの利用
 
 権限管理（ACL）NCMBAclを使います。
 
 ```cs
 var message = "Hello, world";
-var item = _ncmb.Object("DataStoreTest");
+var item = new NCMBObject("DataStoreTest");
 item.Set("message", message);
-var acl = _ncmb.Acl();
+var acl = new NCMBAcl();
 acl.SetPublicReadAccess(true);
 acl.SetPublicWriteAccess(false);
 acl.SetRoleReadAccess("admin", true);
@@ -165,8 +173,9 @@ item.Save();
 **文字列型の場合**
 
 ```cs
-var str1 = (string) hello.Get("objectId")
+var str1 = (string) hello.Get("objectId");
 var str2 = hello.Get<string>("objectId");
+var str3 = hello.Get("objectId").ToString());
 ```
 
 **配列の場合**
@@ -182,26 +191,26 @@ var ary2 = hello.Get<JArrat>("array");
 
 ```cs
 // 文字列、数字の検索
-var query = ncmb.Query("Hello");
+var query = new NCMBQuery("Hello");
 query.EqualTo("message", "Test message").EqualTo("number", 501);
 
-var results = query.Find();
+var results = query.FetchAll();
 Console.WriteLine(results[0].Get("objectId"));
 
 // 配列を検索
 query.InString("message", new JArray("Test message"));
-var results2 = query.Find();
+var results2 = query.FetchAll();
 Console.WriteLine(results2[0].Get("objectId"));
 
 // 数値を使った検索
 query.GreaterThan("number", 500);
-var results3 = query.Find();
+var results3 = query.FetchAll();
 Console.WriteLine(results3[0].Get("objectId"));
 
 // 日付を使った検索
 var query2 = ncmb.Query("Hello");
 query2.greaterThan("time", DateTime.Parse("2020-07-10T08:40:00"));
-var results4 = query2.Find();
+var results4 = query2.FetchAll();
 Console.WriteLine(results4[0].Get("objectId"));
 ```
 
@@ -209,28 +218,29 @@ Console.WriteLine(results4[0].Get("objectId"));
 
 ```cs
 // 文字列、数字の検索
-var query = ncmb.Query("Hello");
+var query = new NCMBQuery("Hello");
 query.EqualTo("message", "Test message").EqualTo("number", 501);
 
-var results = await query.FindAsync();
+var results = await query.FetchAllAsync();
 Console.WriteLine(results[0].Get("objectId"));
 
 // 配列を検索
 query.InString("message", new JArray("Test message"));
-var results2 = await query.FindAsync();
+var results2 = await query.FetchAllAsync();
 Console.WriteLine(results2[0].Get("objectId"));
 
 // 数値を使った検索
 query.GreaterThan("number", 500);
-var results3 = await query.FindAsync();
+var results3 = await query.FetchAllAsync();
 Console.WriteLine(results3[0].Get("objectId"));
 
 // 日付を使った検索
 var query2 = ncmb.Query("Hello");
 query2.greaterThan("time", DateTime.Parse("2020-07-10T08:40:00"));
-var results4 = await query2.FindAsync();
+var results4 = await query2.FetchAllAsync();
 Console.WriteLine(results4[0].Get("objectId"));
 ```
+
 
 **その他のオペランド**
 
@@ -247,6 +257,141 @@ Console.WriteLine(results4[0].Get("objectId"));
 - InArray(string name, object value)
 - NotInArray(string name, object value)
 - AllInArray(string name, object value)
+
+### リレーション
+
+#### リレーションを作成して保存
+
+```cs
+var item1 = new NCMBObject("RelationTest");
+item1.Set("name", "item1").Save();
+var item2 = new NCMBObject("RelationTest");
+item2.Set("name", "item2").Save();
+
+var relation = new NCMBRelation();
+relation.Add(item1).Add(item2);
+
+var item3 = new NCMBObject("RelationMaster");
+item3.Set("relation", relation).Save();
+```
+
+#### リレーションからデータを削除して保存
+
+```cs
+var item1 = new NCMBObject("RelationTest");
+item1.Set("name", "item1").Save();
+var item2 = new NCMBObject("RelationTest");
+item2.Set("name", "item2").Save();
+
+var relation = new NCMBRelation();
+relation.Add(item1).Add(item2);
+
+var item3 = new NCMBObject("RelationMaster");
+item3.Set("relation", relation).Save();
+
+relation = new NCMBRelation();
+relation.Remove(item1);
+item3.Set("relation", relation).Save();
+```
+
+### ポインター
+
+#### ポインターとしてオブジェクトを保存
+
+```cs
+var item1 = new NCMBObject("QueryTest");
+item1.Set("message", "Test message");
+item1.Set("number", 500);
+await item1.SaveAsync();
+
+var item2 = new NCMBObject("QueryTest");
+item2.Set("message", "Test message");
+item2.Set("number", 500);
+item2.Set("obj", item1);
+await item2.SaveAsync();
+
+var query = new NCMBQuery("QueryTest");
+query.EqualTo("objectId", item2.Get("objectId")).Include("obj");
+var obj = await query.FetchAsync();
+obj.Get("objectId" ).ToString() == item2.Get("objectId").ToString();
+// => true
+((NCMBObject) obj.Get("obj")).Get("objectId").ToString() == item1.Get("objectId").ToString();
+// => true
+```
+
+## ロール
+
+### ロールの作成と削除
+
+```cs
+var role = new NCMBRole();
+role.Set("roleName", "admin");
+role.Save();
+role.Delete();
+```
+
+### 子ロールの作成
+
+```cs
+role1.Set("roleName", "role1");
+role1.Save();
+
+var role2 = new NCMBRole();
+role2.Set("roleName", "role2");
+role2.Save();
+
+role1.AddRole(role2).Save();
+
+role1.Fetch();
+
+var roles = role1.FetchRole();
+
+role2.Get("roleName").ToString() == roles[0].Get("roleName").ToString()
+// => true
+```
+
+### ロールへのユーザの追加
+
+```cs
+var acl = new NCMBAcl();
+acl.SetPublicWriteAccess(true);
+
+var user1 = new NCMBUser();
+var userName = "TestLogin1";
+var password = "TestPass";
+user1.Set("userName", userName);
+user1.Set("password", password);
+user1.SignUp();
+var user = NCMBUser.Login(userName, password);
+user.SetAcl(acl);
+user.Save();
+
+var user2 = new NCMBUser();
+userName = "TestLogin2";
+password = "TestPass";
+user2.Set("userName", userName);
+user2.Set("password", password);
+user2.SignUp();
+
+user = NCMBUser.Login(userName, password);
+user.SetAcl(acl);
+user.Save();
+
+var role1 = new NCMBRole();
+role1.Set("roleName", "role5");
+role1.Save();
+
+role1.AddUser(user1).AddUser(user2).Save();
+
+role1.Fetch();
+
+var users = role1.FetchUser();
+Assert.AreEqual(2, users.Length);
+role1.ClearOperation();
+role1.RemoveUser(user1).Save();
+users = role1.FetchUser();
+Assert.AreEqual(1, users.Length);
+```
 
 ## ライセンス
 

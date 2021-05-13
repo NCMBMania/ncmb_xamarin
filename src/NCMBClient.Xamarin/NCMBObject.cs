@@ -26,6 +26,7 @@ namespace NCMBClient
         public NCMBObject Set(string key, string value)
         {
             _fields[key] = value;
+            var type = this.GetType();
             return this;
         }
 
@@ -159,7 +160,6 @@ namespace NCMBClient
         public Boolean Save()
         {
             var r = GetRequest();
-            // Console.WriteLine(GetData());
             var response = r.Exec();
             if (response.ContainsKey("error")) {
                 return false;

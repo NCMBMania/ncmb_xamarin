@@ -42,6 +42,8 @@
     <Compile Include="NCMBUserTest.cs" />
     <Compile Include="NCMBRelationTest.cs" />
     <Compile Include="NCMBRoleTest.cs" />
+    <Compile Include="NCMBInstallationTest.cs" />
+    <Compile Include="NCMBPushTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

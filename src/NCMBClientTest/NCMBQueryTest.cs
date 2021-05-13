@@ -108,7 +108,9 @@ namespace NCMBClientTest
                 await item2.SaveAsync();
 
                 var query = new NCMBQuery("QueryTest");
-                query.EqualTo("objectId", item2.Get("objectId")).Include("obj");
+                query
+                    .EqualTo("objectId", item2.Get("objectId"))
+                    .Include("obj");
                 var obj = await query.FetchAsync();
                 Assert.AreEqual(obj.Get("objectId"), item2.Get("objectId"));
                 Assert.AreEqual(((NCMBObject) obj.Get("obj")).Get("objectId"), item1.Get("objectId"));

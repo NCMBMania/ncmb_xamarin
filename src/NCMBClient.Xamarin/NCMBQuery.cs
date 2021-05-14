@@ -13,6 +13,9 @@ namespace NCMBClient
         private string _order;
         private string _include;
         private int _skip;
+        private Boolean _count;
+        public int count;
+
         public static NCMB _ncmb;
         public NCMBQuery(string name)
         {
@@ -179,6 +182,88 @@ namespace NCMBClient
             return this;
         }
 
+        public NCMBQuery Or(NCMBQuery query)
+        {
+            var queries = new NCMBQuery[1];
+            queries[0] = query;
+            return this.Or(queries);
+        }
+
+        public NCMBQuery Or(NCMBQuery[] queries)
+        {
+            var or = new JArray();
+            foreach (var query in queries)
+            {
+                or.Add(query.where);
+            }
+            where["$or"] = or;
+            return this;
+        }
+
+        public NCMBQuery Select(string name, string subKey, NCMBQuery query)
+        {
+            var condition = new JObject();
+            var queryParams = new JObject();
+            queryParams.Add("query", GetSubQueryCondition(query));
+            queryParams.Add("key", subKey);
+            condition.Add("$select", queryParams);
+            where.Add(name, condition);
+            return this;
+        }
+
+        public NCMBQuery InQuery(string name, NCMBQuery query)
+        {
+            
+            var condition = new JObject();
+            condition.Add("inQuery", GetSubQueryCondition(query));
+            where.Add(name, condition);
+            return this;
+        }
+
+        private string GetSubQueryClassName(NCMBQuery query)
+        {
+            var className = "";
+            if (query.Name == "users")
+            {
+                className = "user";
+            }
+            else if (query.Name == "roles")
+            {
+                className = "role";
+            }
+            else if (query.Name == "installations")
+            {
+                className = "installation";
+            }
+            else if (query.Name == "files")
+            {
+                className = "file";
+            }
+            else
+            {
+                className = query.Name;
+            }
+            return className;
+        }
+
+        private JObject GetSubQueryCondition(NCMBQuery query)
+        {
+            var className = GetSubQueryClassName(query);
+            var parameters = new JObject();
+            parameters.Add("className", className);
+            parameters.Add("where", query.where);
+
+            if (query._limit > 0)
+            {
+                parameters.Add("limit", query._limit);
+            }
+            if (query._skip > 0)
+            {
+                parameters.Add("skip", query._skip);
+            }
+            return parameters;
+        }
+
         public NCMBQuery SetOperand(string name, object value, string ope = null)
         {
             if (value is DateTime)
@@ -237,6 +322,29 @@ namespace NCMBClient
             return ConvertResults(results);
         }
 
+        public NCMBObject[] FetchAllWithCount()
+        {
+            _count = true;
+            var r = GetClient();
+            var results = r.Exec();
+            count = (int)results.GetValue("count");
+            return ConvertResults(results);
+        }
+
+        public async Task<NCMBObject[]> FetchAllWithCountAsync()
+        {
+            _count = true;
+            var r = GetClient();
+            var results = await r.ExecAsync();
+            count = (int)results.GetValue("count");
+            return ConvertResults(results);
+        }
+
+        public int GetCount()
+        {
+            return count;
+        }
+
         public NCMBObject Fetch()
         {
             _limit = 1;
@@ -276,6 +384,11 @@ namespace NCMBClient
             {
                 queries.Add("skip", _skip);
             }
+            if (_count)
+            {
+                queries.Add("count", 1);
+            }
+            
             var r = new NCMBRequest();
             r.Name = Name;
             r.Queries = queries;

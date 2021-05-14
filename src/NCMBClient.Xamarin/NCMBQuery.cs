@@ -90,7 +90,19 @@ namespace NCMBClient
 
         public NCMBQuery InString(string name, object value)
         {
-            return SetOperand(name, value, "$in");
+            if (value.GetType().IsArray)
+            {
+                var ary = value as IEnumerable;
+                var obj = new JArray();
+                foreach (var val in ary)
+                {
+                    obj.Add(val);
+                }
+                return SetOperand(name, obj, "$in");
+            } else
+            {
+                throw new Exception("Only allow array.");
+            }
         }
 
         public NCMBQuery NotInString(string name, object value)
@@ -215,7 +227,7 @@ namespace NCMBClient
         {
             
             var condition = new JObject();
-            condition.Add("inQuery", GetSubQueryCondition(query));
+            condition.Add("$inQuery", GetSubQueryCondition(query));
             where.Add(name, condition);
             return this;
         }

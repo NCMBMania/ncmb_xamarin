@@ -99,6 +99,18 @@ namespace NCMBClient
             return _objects.ContainsKey(key) ? _objects[key] : _fields.GetValue(key);
         }
 
+        public string GetString(string key)
+        {
+            return (string) _fields.GetValue(key);
+        }
+
+        public int GetInt(string key)
+        {
+            var val = _fields.GetValue(key);
+            var i = Convert.ToInt32(val);
+            return i;
+        }
+
         public JObject GetAllFields()
         {
             return _fields;

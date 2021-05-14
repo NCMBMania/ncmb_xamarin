@@ -44,9 +44,11 @@
     <Compile Include="NCMBRoleTest.cs" />
     <Compile Include="NCMBInstallationTest.cs" />
     <Compile Include="NCMBPushTest.cs" />
+    <Compile Include="NCMBGeoPointTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="yamanote.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NCMBClient.Xamarin\NCMBClient.csproj">

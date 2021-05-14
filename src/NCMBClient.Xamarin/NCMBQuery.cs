@@ -120,6 +120,42 @@ namespace NCMBClient
             return SetOperand(name, value, "$all");
         }
 
+        public NCMBQuery Near(string name, NCMBGeoPoint value)
+        {
+            return SetOperand(name, value.ToJson(), "$nearSphere");
+        }
+
+        public NCMBQuery WithinKilometers(string name, NCMBGeoPoint value, double maxDistance)
+        {
+            this.SetOperand(name, value.ToJson(), "$nearSphere");
+            this.where[name]["$maxDistanceInKilometers"] = maxDistance;
+            return this;
+        }
+
+        public NCMBQuery WithinMiles(string name, NCMBGeoPoint value, double maxDistance)
+        {
+            this.SetOperand(name, value.ToJson(), "$nearSphere");
+            this.where[name]["$maxDistanceInMiles"] = maxDistance;
+            return this;
+        }
+
+        public NCMBQuery WithinRadians(string name, NCMBGeoPoint value, double maxDistance)
+        {
+            this.SetOperand(name, value.ToJson(), "$nearSphere");
+            this.where[name]["$maxDistanceInRadians"] = maxDistance;
+            return this;
+        }
+
+        public NCMBQuery WithinSquare(string name, NCMBGeoPoint southWestVertex, NCMBGeoPoint northEastVertex)
+        {
+            var box = new JObject();
+            var ary = new JArray();
+            ary.Add(southWestVertex.ToJson());
+            ary.Add(northEastVertex.ToJson());
+            box.Add("$box", ary);
+            return this.SetOperand(name, box, "$within");
+        }
+
         public NCMBQuery RelatedTo(NCMBObject obj, string name)
         {
             var className = "";

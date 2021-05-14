@@ -11,7 +11,6 @@ namespace NCMBClient
         public string Name { get; }
         public JObject _fields;
         private Dictionary<string, object> _objects;
-        private Dictionary<string, object> _relations;
         private NCMBAcl _acl;
         public static NCMB _ncmb;
         
@@ -20,7 +19,6 @@ namespace NCMBClient
             this.Name = name;
             _fields = new JObject();
             _objects = new Dictionary<string, object>();
-            _relations = new Dictionary<string, object>();
         }
 
         public NCMBObject Set(string key, string value)
@@ -71,11 +69,20 @@ namespace NCMBClient
         }
         public NCMBObject Set(string key, NCMBRelation value)
         {
-            if (_relations.ContainsKey(key))
+            if (_objects.ContainsKey(key))
             {
-                _relations.Remove(key);
+                _objects.Remove(key);
             }
-            _relations.Add(key, value);
+            _objects.Add(key, value);
+            return this;
+        }
+        public NCMBObject Set(string key, NCMBGeoPoint value)
+        {
+            if (_objects.ContainsKey(key))
+            {
+                _objects.Remove(key);
+            }
+            _objects.Add(key, value);
             return this;
         }
 
@@ -85,7 +92,6 @@ namespace NCMBClient
             {
                 _fields.Remove(key);
             }
-            
         }
 
         public object Get(string key)
@@ -141,6 +147,12 @@ namespace NCMBClient
                         else if (obj.ContainsKey("__type") && ((string)obj["__type"]) == "Relation")
                         {
                             // Do nothing
+                        }
+                        else if (obj.ContainsKey("__type") && ((string)obj["__type"]) == "GeoPoint")
+                        {
+                            var data = (JObject)key.Value;
+                            var geo = new NCMBGeoPoint((double) data["latitude"], (double) data["longitude"]);
+                            this.Set(key.Key, geo);
                         }
                         else if (key.Key == "acl")
                         {
@@ -267,19 +279,20 @@ namespace NCMBClient
             foreach (var key in _objects)
             {
                 var data = new JObject();
-                var obj = (NCMBObject) key.Value;
-                data["__type"] = "Pointer";
-                data.Add("className", obj.Name);
-                var objectId = obj.Get("objectId");
-                data.Add("objectId", objectId.ToString());
-                results[key.Key] = obj.ToPointer();
+                var type = key.Value.GetType();
+                if (type.Equals(typeof(NCMBObject)))
+                {
+                    results[key.Key] = ((NCMBObject) key.Value).ToPointer();
+                } else if (type.Equals(typeof(NCMBRelation)))
+                {
+                    results[key.Key] = ((NCMBRelation)key.Value).ToJson();
+                }
+                else if (type.Equals(typeof(NCMBGeoPoint)))
+                {
+                    results[key.Key] = ((NCMBGeoPoint)key.Value).ToJson();
+                }
+                
             }
-
-            foreach (var key in _relations)
-            {
-                results[key.Key] = ((NCMBRelation)key.Value).ToJson();
-            }
-
             foreach (KeyValuePair<string, JToken> key in _fields)
             {
                 results[key.Key] = key.Value;

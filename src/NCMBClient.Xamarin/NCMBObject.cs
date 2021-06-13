@@ -67,6 +67,7 @@ namespace NCMBClient
             _acl = acl;
             return this;
         }
+
         public NCMBObject Set(string key, NCMBRelation value)
         {
             if (_objects.ContainsKey(key))
@@ -109,6 +110,14 @@ namespace NCMBClient
             var val = _fields.GetValue(key);
             var i = Convert.ToInt32(val);
             return i;
+        }
+
+        public bool GetBoolean(string key)
+        {
+            var val = _fields.GetValue(key);
+            if (val.ToString() == "True") return true;
+            if (val.ToString() == "False") return false;
+            throw new Exception($"{key} is empty or invalid value {val}");
         }
 
         public JObject GetAllFields()
@@ -181,17 +190,6 @@ namespace NCMBClient
             }
         }
 
-        public Boolean Save()
-        {
-            var r = GetRequest();
-            var response = r.Exec();
-            if (response.ContainsKey("error")) {
-                return false;
-            }
-            Sets(response);
-            return true;
-        }
-
         public NCMBRequest GetRequest()
         {
             NCMBRequest r = new NCMBRequest();
@@ -210,31 +208,21 @@ namespace NCMBClient
             return r;
         }
 
-        public async Task<NCMBObject> SaveAsync()
+        public async Task<NCMBObject> Save()
         {
             var r = GetRequest();
-            var response = await r.ExecAsync();
+            var response = await r.Exec();
             Sets(response);
             return this;
         }
 
-        public bool Delete()
+        public async Task<bool> Delete()
         {
             NCMBRequest r = new NCMBRequest();
             r.Method = "DELETE";
             r.Name = Name;
             r.ObjectId = ObjectId();
-            var response = r.Exec();
-            return response.Count == 0;
-        }
-
-        public async Task<bool> DeleteAsync()
-        {
-            NCMBRequest r = new NCMBRequest();
-            r.Method = "DELETE";
-            r.Name = Name;
-            r.ObjectId = ObjectId();
-            var response = await r.ExecAsync();
+            var response = await r.Exec();
             return response.Count == 0;
         }
 
@@ -243,24 +231,13 @@ namespace NCMBClient
             return (string)_fields.GetValue("objectId");
         }
 
-        public async Task<bool> FetchAsync()
+        public async Task<bool> Fetch()
         {
             NCMBRequest r = new NCMBRequest();
             r.Method = "GET";
             r.Name = Name;
             r.ObjectId = ObjectId();
-            var response = await r.ExecAsync();
-            Sets(response);
-            return true;
-        }
-
-        public bool Fetch()
-        {
-            NCMBRequest r = new NCMBRequest();
-            r.Method = "GET";
-            r.Name = Name;
-            r.ObjectId = ObjectId();
-            var response = r.Exec();
+            var response = await r.Exec();
             Sets(response);
             return true;
         }

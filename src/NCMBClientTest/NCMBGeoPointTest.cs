@@ -42,67 +42,75 @@ namespace NCMBClientTest
         [Test()]
         public void TestSaveGeoPoint()
         {
-            var latitude = 35.6585805;
-            var longitude = 139.7454329;
-            var geo = new NCMBGeoPoint(latitude, longitude);
-            var item = new NCMBObject("Item");
-            item.Set("geo", geo);
-            item.Save();
-            Assert.NotNull(item.Get("objectId"));
-            item.Delete();
+            Task.Run(async () =>
+            {
+                var latitude = 35.6585805;
+                var longitude = 139.7454329;
+                var geo = new NCMBGeoPoint(latitude, longitude);
+                var item = new NCMBObject("Item");
+                item.Set("geo", geo);
+                await item.Save();
+                Assert.NotNull(item.Get("objectId"));
+                await item.Delete();
+            }).GetAwaiter().GetResult();
         }
 
         [Test()]
         public void TestSaveAndGetGeoPoint()
         {
-            var latitude = 35.6585805;
-            var longitude = 139.7454329;
-            var geo = new NCMBGeoPoint(latitude, longitude);
-            var item = new NCMBObject("Item");
-            item.Set("geo", geo);
-            item.Save();
-            item.Fetch();
-            var geo1 = (NCMBGeoPoint)item.Get("geo");
-            Assert.NotNull(item.Get("objectId"));
-            Assert.AreEqual(geo1.Latitude, geo.Latitude);
-            item.Delete();
+            Task.Run(async () =>
+            {
+                var latitude = 35.6585805;
+                var longitude = 139.7454329;
+                var geo = new NCMBGeoPoint(latitude, longitude);
+                var item = new NCMBObject("Item");
+                item.Set("geo", geo);
+                await item.Save();
+                await item.Fetch();
+                var geo1 = (NCMBGeoPoint)item.Get("geo");
+                Assert.NotNull(item.Get("objectId"));
+                Assert.AreEqual(geo1.Latitude, geo.Latitude);
+                await item.Delete();
+            }).GetAwaiter().GetResult();
         }
 
         [Test()]
         public void TestSearchGeoPoints()
         {
-            
-            var text = File.ReadAllText("../../yamanote.json");
-            var json = JArray.Parse(text);
-            foreach (var x in json)
+            Task.Run(async () =>
             {
-                var p = (JObject)x;
-                var geo = new NCMBGeoPoint((double)p["latitude"], (double)p["longitude"]);
-                var item = new NCMBObject("Station");
-                item.Set("name", p["name"].ToString()).Set("geo", geo).Save();
-            }
+                var text = File.ReadAllText("../../yamanote.json");
+                var json = JArray.Parse(text);
+                foreach (var x in json)
+                {
+                    var p = (JObject)x;
+                    var geo = new NCMBGeoPoint((double)p["latitude"], (double)p["longitude"]);
+                    var item = new NCMBObject("Station");
+                    await item.Set("name", p["name"].ToString()).Set("geo", geo).Save();
+                }
 
 
-            var query = new NCMBQuery("Station");
+                var query = new NCMBQuery("Station");
 
-            var geo1 = new NCMBGeoPoint(35.6585805, 139.7454329);
-            var ary = query.Limit(5).Near("geo", geo1).FetchAll();
+                var geo1 = new NCMBGeoPoint(35.6585805, 139.7454329);
+                var ary = await query.Limit(5).Near("geo", geo1).FetchAll();
 
-            Assert.AreEqual(5, ary.Length);
-            Assert.AreEqual("浜松町", ((NCMBObject)ary[0]).Get("name").ToString());
+                Assert.AreEqual(5, ary.Length);
+                Assert.AreEqual("浜松町", ((NCMBObject)ary[0]).Get("name").ToString());
 
-            var geo2 = new NCMBGeoPoint(35.6654861, 139.7684781);
-            var geo3 = new NCMBGeoPoint(35.6799926, 139.7357476);
-            query = new NCMBQuery("Station");
-            ary = query.WithinSquare("geo", geo2, geo3).FetchAll();
+                var geo2 = new NCMBGeoPoint(35.6654861, 139.7684781);
+                var geo3 = new NCMBGeoPoint(35.6799926, 139.7357476);
+                query = new NCMBQuery("Station");
+                ary = await query.WithinSquare("geo", geo2, geo3).FetchAll();
             
-            Assert.AreEqual(2, ary.Length);
-            query = new NCMBQuery("Station");
-            var stations = query.Limit(100).FetchAll();
-            foreach (var station in stations)
-            {
-                station.Delete();
-            }
+                Assert.AreEqual(2, ary.Length);
+                query = new NCMBQuery("Station");
+                var stations = await query.Limit(100).FetchAll();
+                foreach (var station in stations)
+                {
+                    await station.Delete();
+                }
+            }).GetAwaiter().GetResult();
         }
     }
 }

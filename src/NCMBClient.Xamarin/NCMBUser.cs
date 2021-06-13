@@ -17,46 +17,25 @@ namespace NCMBClient
             _ncmb.SessionToken = null;
         }
 
-        public NCMBUser SignUp()
+        public async Task<NCMBUser> SignUp()
         {
-            this.Save();
-            NCMBUser._ncmb.SessionToken = this.Get("sessionToken").ToString();
-            this.Remove("sessionToken");
-            return this;
-        }
-
-        public async Task<NCMBUser> SignUpAsync()
-        {
-            await this.SaveAsync();
+            await this.Save();
             ToSession();
             return this;
         }
-
-        public Boolean Login()
-        {
-            var r = GetLoginRequest();
-            var response = r.Exec();
-            if (response.ContainsKey("sessionToken"))
-            {
-                Sets(response);
-                ToSession();
-                return true;
-            }
-            return false;
-        }
         
-        public static NCMBUser Login(string userName, string password)
+        public static async Task<NCMBUser> Login(string userName, string password)
         {
             var user = new NCMBUser();
             user.Set("userName", userName).Set("password", password);
-            user.Login();
+            await user.Login();
             return user;
         }
 
-        public async Task<Boolean> LoginAsync()
+        public async Task<Boolean> Login()
         {
             var r = GetLoginRequest();
-            var response = await r.ExecAsync();
+            var response = await r.Exec();
             if (response.ContainsKey("sessionToken"))
             {
                 Sets(response);
@@ -77,7 +56,8 @@ namespace NCMBClient
             return new NCMBQuery("users");
         }
 
-        public new Boolean Save()
+        
+        public new Task<NCMBObject> Save()
         {
             if (base._fields.ContainsKey("objectId")) {
                 var ary = new string[3] { "mailAddress", "password", "mailAddressConfirm" };

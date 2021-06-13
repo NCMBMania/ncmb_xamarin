@@ -14,58 +14,6 @@ namespace NCMBClientTest
             new NCMB(ApplicationKey, ClientKey);
         }
 
-        [Test()]
-        public void TestCreateInstallation()
-        {
-            var installation = new NCMBInstallation();
-            installation
-                .Set("deviceToken", "aaa")
-                .Set("deviceType", "ios")
-                .Save();
-            Assert.NotNull(installation.Get("objectId"));
-            installation.Delete();
-        }
-
-        [Test()]
-        public void TestCreateInstallationFail()
-        {
-            var installation = new NCMBInstallation();
-            try
-            {
-                installation
-                    .Set("deviceType", "ios");
-                installation.Save();
-                Assert.AreEqual(true, false);
-            }
-            catch (Exception e)
-            {
-                Assert.AreEqual(e.Message, "deviceToken is required.");
-            }
-        }
-
-
-        [Test()]
-        public void TestFetchInstallations()
-        {
-
-            var ary = new string[3] { "aaa", "bbb", "ccc" };
-            foreach (var deviceToken in ary)
-            {
-                var installation = new NCMBInstallation();
-                installation
-                .Set("deviceToken", deviceToken)
-                .Set("deviceType", "ios")
-                .Save();
-            }
-            var query = NCMBInstallation.Query();
-            var installations = query.FetchAll();
-            Assert.AreEqual(3, installations.Length);
-            foreach (var installation in installations)
-            {
-                installation.Delete();
-            }
-        }
-
     }
 
 

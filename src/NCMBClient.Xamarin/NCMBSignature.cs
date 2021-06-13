@@ -117,6 +117,7 @@ namespace NCMBClient
                 sigList.Add($"{key}={_baseInfo[key]}");
             }
             var queryString = String.Join("&", sigList);
+            
             var str = String.Join("\n", new[]{
                 Method,
                 Fqdn,

@@ -15,6 +15,7 @@ namespace NCMBClient
             NCMBQuery._ncmb = this;
             NCMBUser._ncmb = this;
             NCMBRequest._ncmb = this;
+            NCMBFile._ncmb = this;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 namespace NCMBClient
 {
     public class NCMBInstallation : NCMBObject
@@ -12,9 +13,8 @@ namespace NCMBClient
             return new NCMBQuery("installations");
         }
 
-        new public Boolean Save()
+        new public Task<NCMBObject> Save()
         {
-            Console.WriteLine("Save in Installation");
             var ary = new string[] { "deviceToken", "deviceType" };
             foreach (var key in ary)
             {

@@ -19,14 +19,17 @@ namespace NCMBClientTest
         [Test()]
         public void TestSignUpSync()
         {
-            var user = new NCMBUser();
-            user.Set("userName", "TestUser");
-            user.Set("password", "TestPass");
-            user.SignUp();
-            Console.WriteLine(user.ObjectId());
-            Assert.AreNotEqual(user.ObjectId(), "");
-            user.Delete();
-            NCMBUser.Logout();
+            Task.Run(async () =>
+            {
+                var user = new NCMBUser();
+                user.Set("userName", "TestUser");
+                user.Set("password", "TestPass");
+                await user.SignUp();
+                Console.WriteLine(user.ObjectId());
+                Assert.AreNotEqual(user.ObjectId(), "");
+                await user.Delete();
+                NCMBUser.Logout();
+            }).GetAwaiter().GetResult();
         }
 
         [Test()]
@@ -37,32 +40,12 @@ namespace NCMBClientTest
                 var user = new NCMBUser();
                 user.Set("userName", "TestUser");
                 user.Set("password", "TestPass");
-                await user.SignUpAsync();
+                await user.SignUp();
                 Console.WriteLine(user.ObjectId());
                 Assert.AreNotEqual(user.ObjectId(), "");
-                await user.DeleteAsync();
+                await user.Delete();
                 NCMBUser.Logout();
             }).GetAwaiter().GetResult();
-        }
-
-        [Test()]
-        public void TestLoginSync()
-        {
-            var user = new NCMBUser();
-            user.Set("userName", "TestLogin");
-            user.Set("password", "TestPass");
-            user.SignUp();
-
-            user = new NCMBUser();
-            user.Set("userName", "TestLogin");
-            user.Set("password", "TestPass");
-            Assert.AreEqual(user.Login(), true);
-            Console.WriteLine(user.ObjectId());
-            Assert.AreNotEqual(user.ObjectId(), "");
-            Assert.AreNotEqual(_ncmb.SessionToken, "");
-            Assert.NotNull(_ncmb.SessionToken);
-            user.Delete();
-            NCMBUser.Logout();
         }
 
         [Test()]
@@ -73,17 +56,17 @@ namespace NCMBClientTest
                 var user = new NCMBUser();
                 user.Set("userName", "TestLogin");
                 user.Set("password", "TestPass");
-                await user.SignUpAsync();
+                await user.SignUp();
 
                 user = new NCMBUser();
                 user.Set("userName", "TestLogin");
                 user.Set("password", "TestPass");
-                Assert.AreEqual(await user.LoginAsync(), true);
+                Assert.AreEqual(await user.Login(), true);
                 Console.WriteLine(user.ObjectId());
                 Assert.AreNotEqual(user.ObjectId(), "");
                 Assert.AreNotEqual(_ncmb.SessionToken, "");
                 Assert.NotNull(_ncmb.SessionToken);
-                await user.DeleteAsync();
+                await user.Delete();
                 NCMBUser.Logout();
             }).GetAwaiter().GetResult();
         }

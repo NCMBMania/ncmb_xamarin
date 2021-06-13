@@ -13,8 +13,8 @@
     <RepositoryUrl>https://github.com/NCMBMania/ncmb_xamarin</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Nifcloud mBaaS Xamarin</PackageTags>
-    <Version>0.7</Version>
-    <ReleaseVersion>0.7</ReleaseVersion>
+    <Version>0.9</Version>
+    <ReleaseVersion>0.8</ReleaseVersion>
     <PackOnBuild>true</PackOnBuild>
     <Configurations>Release;Debug</Configurations>
   </PropertyGroup>

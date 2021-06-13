@@ -30,6 +30,6 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		description = @NCMB for Xamarin and C# application.\n
-		version = 0.7
+		version = 0.8
 	EndGlobalSection
 EndGlobal

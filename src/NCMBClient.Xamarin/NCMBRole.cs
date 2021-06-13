@@ -64,17 +64,10 @@ namespace NCMBClient
             return new NCMBQuery("roles");
         }
 
-        public NCMBUser[] FetchUser()
+        public async Task<NCMBUser[]> FetchUser()
         {
             var query = NCMBUser.Query();
-            var ary = query.RelatedTo(this, "belongUser").FetchAll();
-            return ReturnUser(ary);
-        }
-
-        public async Task<NCMBUser[]> FetchUserAsync()
-        {
-            var query = NCMBUser.Query();
-            var ary = await query.RelatedTo(this, "belongUser").FetchAllAsync();
+            var ary = await query.RelatedTo(this, "belongUser").FetchAll();
             return ReturnUser(ary);
         }
 
@@ -94,17 +87,10 @@ namespace NCMBClient
             return results;
         }
 
-        public NCMBRole[] FetchRole()
+        public async Task<NCMBRole[]> FetchRole()
         {
             var query = Query();
-            var ary = query.RelatedTo(this, "belongRole").FetchAll();
-            return ReturnRole(ary);
-        }
-
-        public async Task<NCMBRole[]> FetchRoleAsync()
-        {
-            var query = Query();
-            var ary = await query.RelatedTo(this, "belongRole").FetchAllAsync();
+            var ary = await query.RelatedTo(this, "belongRole").FetchAll();
             return ReturnRole(ary);
         }
 
@@ -124,14 +110,14 @@ namespace NCMBClient
             return results;
         }
 
-        public new Boolean Save()
+        public async new Task<bool> Save()
         {
             var relation = new NCMBRelation();
             if (__op == "AddUser" || __op == "AddRole")
             {
                 foreach (var user in users)
                 {
-                    relation.Add((NCMBUser) user);
+                    relation.Add((NCMBUser)user);
                 }
                 foreach (var role in roles)
                 {
@@ -165,7 +151,8 @@ namespace NCMBClient
             {
                 this._fields.Remove("belongRole");
             }
-            return base.Save();
+            await base.Save();
+            return true;
         }
     }
 }

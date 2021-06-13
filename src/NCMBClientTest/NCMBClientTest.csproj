@@ -9,7 +9,7 @@
     <RootNamespace>NCMBClientTest</RootNamespace>
     <AssemblyName>NCMBClientTest</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
-    <ReleaseVersion>0.7</ReleaseVersion>
+    <ReleaseVersion>0.8</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,6 +45,7 @@
     <Compile Include="NCMBInstallationTest.cs" />
     <Compile Include="NCMBPushTest.cs" />
     <Compile Include="NCMBGeoPointTest.cs" />
+    <Compile Include="NCMBFileTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 namespace NCMBClient
 {
     public class NCMBPush: NCMBObject
@@ -12,7 +13,7 @@ namespace NCMBClient
             return new NCMBQuery("push");
         }
 
-        new public Boolean Save()
+        new public Task<NCMBObject> Save()
         {
             if (this.Get("deliveryTime") == null && this.Get("immediateDeliveryFlag") == null)
             {

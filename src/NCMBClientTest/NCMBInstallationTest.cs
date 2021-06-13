@@ -18,52 +18,61 @@ namespace NCMBClientTest
         [Test()]
         public void TestCreateInstallation()
         {
-            var installation = new NCMBInstallation();
-            installation
-                .Set("deviceToken", "aaa")
-                .Set("deviceType", "ios")
-                .Save();
-            Assert.NotNull(installation.Get("objectId"));
-            installation.Delete();
+            Task.Run(async () =>
+            {
+                var installation = new NCMBInstallation();
+                await installation
+                    .Set("deviceToken", "aaa")
+                    .Set("deviceType", "ios")
+                    .Save();
+                Assert.NotNull(installation.Get("objectId"));
+                await installation.Delete();
+            }).GetAwaiter().GetResult();
         }
 
         [Test()]
         public void TestCreateInstallationFail()
         {
-            var installation = new NCMBInstallation();
-            try {
-                installation
-                    .Set("deviceType", "ios");
-                installation.Save();
-                Assert.AreEqual(true, false);
-            }
-            catch (Exception e)
+            Task.Run(async () =>
             {
-                Assert.AreEqual(e.Message, "deviceToken is required.");
-            }
+                var installation = new NCMBInstallation();
+                try
+                {
+                    installation
+                        .Set("deviceType", "ios");
+                    await installation.Save();
+                    Assert.AreEqual(true, false);
+                }
+                catch (Exception e)
+                {
+                    Assert.AreEqual(e.Message, "deviceToken is required.");
+                }
+            }).GetAwaiter().GetResult();
         }
 
 
         [Test()]
         public void TestFetchInstallations()
         {
-
-            var ary = new string[3] {"aaa", "bbb", "ccc"};
-            foreach (var deviceToken in ary)
+            Task.Run(async () =>
             {
-                var installation = new NCMBInstallation();
-                installation
-                .Set("deviceToken", deviceToken)
-                .Set("deviceType", "ios")
-                .Save();
-            }
-            var query = NCMBInstallation.Query();
-            var installations = query.FetchAll();
-            Assert.AreEqual(3, installations.Length);
-            foreach (var installation in installations)
-            {
-                installation.Delete();
-            }
+                var ary = new string[3] {"aaa", "bbb", "ccc"};
+                foreach (var deviceToken in ary)
+                {
+                    var installation = new NCMBInstallation();
+                    await installation
+                        .Set("deviceToken", deviceToken)
+                        .Set("deviceType", "ios")
+                        .Save();
+                }
+                var query = NCMBInstallation.Query();
+                var installations = await query.FetchAll();
+                Assert.AreEqual(3, installations.Length);
+                foreach (var installation in installations)
+                {
+                    await installation.Delete();
+                }
+            }).GetAwaiter().GetResult();
         }
     }
 }

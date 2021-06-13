@@ -14,7 +14,7 @@ namespace NCMBClient
         private string _include;
         private int _skip;
         private Boolean _count;
-        public int count;
+        private int count;
 
         public static NCMB _ncmb;
         public NCMBQuery(string name)
@@ -320,36 +320,21 @@ namespace NCMBClient
             return this;
         }
 
-        public NCMBObject[] FetchAll()
+        public async Task<NCMBObject[]> FetchAll()
         {
             var r = GetClient();
-            var results = r.Exec();
+            var results = await r.Exec();
+            if (_count)
+            {
+                this.count = (int)results.GetValue("count");
+            }
             return ConvertResults(results);
         }
 
-        public async Task<NCMBObject[]> FetchAllAsync()
-        {
-            var r = GetClient();
-            var results = await r.ExecAsync();
-            return ConvertResults(results);
-        }
-
-        public NCMBObject[] FetchAllWithCount()
+        public NCMBQuery Count()
         {
             _count = true;
-            var r = GetClient();
-            var results = r.Exec();
-            count = (int)results.GetValue("count");
-            return ConvertResults(results);
-        }
-
-        public async Task<NCMBObject[]> FetchAllWithCountAsync()
-        {
-            _count = true;
-            var r = GetClient();
-            var results = await r.ExecAsync();
-            count = (int)results.GetValue("count");
-            return ConvertResults(results);
+            return this;
         }
 
         public int GetCount()
@@ -357,19 +342,11 @@ namespace NCMBClient
             return count;
         }
 
-        public NCMBObject Fetch()
+        public async Task<NCMBObject> Fetch()
         {
             _limit = 1;
             var r = GetClient();
-            var results = r.Exec();
-            return ConvertResults(results)[0];
-        }
-
-        public async Task<NCMBObject> FetchAsync()
-        {
-            _limit = 1;
-            var r = GetClient();
-            var results = await r.ExecAsync();
+            var results = await r.Exec();
             return (NCMBObject) ConvertResults(results)[0];
         }
 

@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using NCMBClient;
+using System.IO;
 
 namespace NCMBClientTest
 {
@@ -11,9 +12,9 @@ namespace NCMBClientTest
 
         public Test()
         {
-            var ApplicationKey = "08068a4622540e7586869a9bc4de3655967d8282a0bb6463787c849dc8daee87";
-            var ClientKey = "ab48936a4f392b7517c2cf241cb0049753409a1845f7a429c812aca602844395";
-            _ncmb = new NCMB(ApplicationKey, ClientKey);
+            var dir = Directory.GetParent(System.IO.Path.GetDirectoryName(System.AppDomain.CurrentDomain.BaseDirectory));
+            DotNetEnv.Env.Load(dir + "/.env");
+            _ncmb = new NCMB(DotNetEnv.Env.GetString("APPLICATION_KEY"), DotNetEnv.Env.GetString("CLIENT_KEY"));
         }
 
         [Test()]

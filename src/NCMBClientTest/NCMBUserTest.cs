@@ -2,6 +2,9 @@
 using System;
 using NCMBClient;
 using System.Threading.Tasks;
+using System.IO;
+using System.Reflection;
+using Newtonsoft.Json.Linq;
 
 namespace NCMBClientTest
 {
@@ -9,11 +12,8 @@ namespace NCMBClientTest
     [TestFixture()]
     public class NCMBUserTest : Test
     {
-        public NCMBUserTest()
+        public NCMBUserTest(): base()
         {
-            var ApplicationKey = "9170ffcb91da1bbe0eff808a967e12ce081ae9e3262ad3e5c3cac0d9e54ad941";
-            var ClientKey = "9e5014cd2d76a73b4596deffdc6ec4028cfc1373529325f8e71b7a6ed553157d";
-            new NCMB(ApplicationKey, ClientKey);
         }
 
         [Test()]
@@ -56,7 +56,13 @@ namespace NCMBClientTest
                 var user = new NCMBUser();
                 user.Set("userName", "TestLogin");
                 user.Set("password", "TestPass");
-                await user.SignUp();
+                try {
+                    await user.SignUp();
+                } catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+                
 
                 user = new NCMBUser();
                 user.Set("userName", "TestLogin");
@@ -71,12 +77,48 @@ namespace NCMBClientTest
             }).GetAwaiter().GetResult();
         }
 
-        public void TestLoginByEmail()
+        [Test()]
+        public void TestLoginByFacebook()
         {
-            var emailAddress = "test@moongift.jp";
-            var password = "cA3hWAZLA2zTDnuh4";
-
-
+            Task.Run(async () =>
+            {
+                var facebookId = DotNetEnv.Env.GetString("FACEBOOK_ID");
+                var facebookAccessToken = DotNetEnv.Env.GetString("FACEBOOK_ACCESS_TOKEN");
+                var dt = DateTime.Now;
+                dt.AddHours(1);
+                var user = await NCMBUser.SignUpWithFacebook(facebookId, facebookAccessToken, dt);
+                Assert.AreNotEqual(user.ObjectId(), "");
+                Assert.AreNotEqual(_ncmb.SessionToken, "");
+                Assert.NotNull(_ncmb.SessionToken);
+            }).GetAwaiter().GetResult();
         }
+
+        [Test()]
+        public void TestLoginByAnonymous()
+        {
+            Task.Run(async () =>
+            {
+                var user = await NCMBUser.SignUpWithAnonymous();
+                Assert.AreNotEqual(user.ObjectId(), "");
+                Assert.AreNotEqual(_ncmb.SessionToken, "");
+                Assert.NotNull(_ncmb.SessionToken);
+                var authData = user.Get("authData") as JObject;
+                var data = authData["anonymous"] as JObject;
+                var id = data["id"].ToString();
+                var user2 = await NCMBUser.SignUpWithAnonymous(id);
+                Assert.AreEqual(user.ObjectId(), user2.ObjectId());
+            }).GetAwaiter().GetResult();
+        }
+
+        [Test()]
+        public void TestRequestMailAddressUserEntry()
+        {
+            Task.Run(async () =>
+            {
+                var bol = await NCMBUser.RequestAuthenticationMail(DotNetEnv.Env.GetString("EMAIL_ADDRESS"));
+                Assert.AreEqual(bol, true);
+            }).GetAwaiter().GetResult();
+        }
+
     }
 }

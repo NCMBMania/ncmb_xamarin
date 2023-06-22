@@ -6,6 +6,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Diagnostics;
 
 namespace NCMBClient
 {
@@ -20,6 +21,8 @@ namespace NCMBClient
         public static NCMB _ncmb;
         public byte[] Data;
         public string MimeType;
+        public Dictionary<string, string> Headers = new Dictionary<string, string>();
+        public bool isScript = false;
 
         public NCMBRequest()
         {
@@ -41,9 +44,11 @@ namespace NCMBClient
                 {
                     if (key.Value.Type == JTokenType.Date)
                     {
-                        var date = new JObject();
-                        date["__type"] = "Date";
-                        date["iso"] = ((DateTime)key.Value).ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
+                        var date = new JObject
+                        {
+                            ["__type"] = "Date",
+                            ["iso"] = ((DateTime)key.Value).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                        };
                         Fields[key.Key] = date;
                     }
                 }
@@ -64,6 +69,13 @@ namespace NCMBClient
             {
                 headers.Add("X-NCMB-Apps-Session-Token", _ncmb.SessionToken);
             }
+            if (isScript)
+            {
+                foreach (KeyValuePair<string, string> item in Headers)
+                {
+                    headers.Add(item.Key, item.Value);
+                }
+            }
             return headers;
         }
 
@@ -77,16 +89,36 @@ namespace NCMBClient
 
         public async Task<JObject> Exec()
         {
-            var s = new NCMBSignature(NCMBRequest._ncmb.ApplicationKey, NCMBRequest._ncmb.ClientKey);
+            var response = await GetResponse();
+            var body = await response.Content.ReadAsStringAsync();
+            if (Method == "DELETE" && body == "") return new JObject();
+            var result = JObject.Parse(body);
+            if (result.ContainsKey("error") && result.ContainsKey("code"))
+            {
+                throw new Exception($"NCMB Error {result.GetValue("code")} {result.GetValue("error")}");
+            }
+            return result;
+        }
+
+        public async Task<byte[]> ExecByte()
+        {
+            var response = await GetResponse();
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+
+        private Task<HttpResponseMessage> GetResponse()
+        {
+            var s = new NCMBSignature(NCMBRequest._ncmb.ApplicationKey, NCMBRequest._ncmb.ClientKey, isScript);
             s.Method = Method;
             s.Name = Name;
             s.ObjectId = ObjectId;
             s.Queries = Queries;
             s.Path = Path;
+
             var signature = s.Generate();
 
             var headers = GetHeader(s.Time, signature);
-            var client = new HttpClient();            
+            var client = new HttpClient();
             var request = new HttpRequestMessage(GetMethod(Method), s.Url());
             foreach (string key in headers.Keys)
             {
@@ -105,70 +137,15 @@ namespace NCMBClient
                     multipart.Add(new StringContent(Fields["acl"].ToString()), "acl");
                 }
                 request.Content = multipart;
-            } else
+            }
+            else
             {
                 if (Method == "POST" || Method == "PUT")
                 {
                     request.Content = new StringContent(FieldToString(), Encoding.UTF8, "application/json");
                 }
             }
-            var response = await client.SendAsync(request);
-            var body = await response.Content.ReadAsStringAsync();
-            if (Method == "DELETE" && body == "") return new JObject();
-            return JObject.Parse(body);
+            return client.SendAsync(request);
         }
-
-        /*
-        public JObject Exec()
-        {
-            var s = new NCMBSignature(NCMBRequest._ncmb.ApplicationKey, NCMBRequest._ncmb.ClientKey);
-            s.Method = Method;
-            s.Name = Name;
-            s.ObjectId = ObjectId;
-            s.Queries = Queries;
-            s.Path = Path;
-            var signature = s.Generate();
-
-            var headers = GetHeader(s.Time, signature);
-            var client = GetClient(headers);
-            var response = "";
-            if (Method == "GET")
-            {
-                // Console.WriteLine(s.Url());
-                response = System.Text.Encoding.UTF8.GetString(client.DownloadData(new Uri(s.Url())));
-            }
-            else
-            {
-                response = client.UploadString(s.Url(), Method, FieldToString());
-            }
-            if (Method == "DELETE" && response == "") return new JObject();
-            return JObject.Parse(response);
-        }
-        */
-        
-        /*
-        public async Task<JObject> ExecAsync()
-        {
-            var s = new NCMBSignature(NCMBRequest._ncmb.ApplicationKey, NCMBRequest._ncmb.ClientKey);
-            s.Method = Method;
-            s.Name = Name;
-            s.ObjectId = ObjectId;
-            s.Queries = Queries;
-            s.Path = Path;
-            var signature = s.Generate();
-            var headers = GetHeader(s.Time, signature);
-            var client = GetClient(headers);
-            var response = "";
-            if (Method == "GET")
-            {
-                response = System.Text.Encoding.UTF8.GetString(await client.DownloadDataTaskAsync(new Uri(s.Url())));
-            } else
-            {
-                response = await client.UploadStringTaskAsync(s.Url(), Method, FieldToString());
-            }
-            if (Method == "DELETE" && response == "") return new JObject();
-            return JObject.Parse(response);
-        }
-        */
     }
 }

@@ -10,10 +10,12 @@ namespace NCMBClient
     public class NCMBSignature
     {
         private const string Fqdn = "mbaas.api.nifcloud.com";
+        private const string ScriptFqdn = "script.mbaas.api.nifcloud.com";
         private const string SignatureMethod = "HmacSHA256";
         private const string SignatureVersion = "2";
         private const string Version = "2013-09-01";
-        private readonly string _applicationKey;
+        private const string ScriptVersion = "2015-09-01";
+        // private readonly string _applicationKey;
         private readonly string _clientKey;
         public String Method;
         public String Name;
@@ -21,6 +23,7 @@ namespace NCMBClient
         public String ObjectId;
         public JObject Queries;
         public String Path;
+        private bool _isScript = false;
 
         private readonly Dictionary<string, string> _baseInfo = new Dictionary<string, string>()
         {
@@ -30,18 +33,23 @@ namespace NCMBClient
             {"X-NCMB-Timestamp", ""}
         };
 
-        public NCMBSignature(string applicationKey, string clientKey)
+        public NCMBSignature(string applicationKey, string clientKey, bool isScript = false)
         {
-            _applicationKey = applicationKey;
+            // _applicationKey = applicationKey;
             _clientKey = clientKey;
             _baseInfo["SignatureVersion"] = SignatureVersion;
             _baseInfo["SignatureMethod"] = SignatureMethod;
             _baseInfo["X-NCMB-Application-Key"] = applicationKey;
+            _isScript = isScript;
             Time = DateTime.Now;
         }
 
         // private string GetPath(string class_name, string objectId = null, string definePath = null) {
         private string GetPath() {
+            if (_isScript)
+            {
+                return $"/{ScriptVersion}/script/{Name}";
+            }
             string path = $"/{Version}";
             if (Path != null) {
                 return $"{path}/{Path}";
@@ -89,7 +97,13 @@ namespace NCMBClient
 
             }
             var queryString = queryList.Count == 0 ? "" : $"?{String.Join("&", queryList)}";
-            return $"https://{Fqdn}{GetPath()}{queryString}";
+
+            return $"https://{GetFqdn()}{GetPath()}{queryString}";
+        }
+
+        private string GetFqdn()
+        {
+            return _isScript ? ScriptFqdn : Fqdn;
         }
 
         public string Generate()
@@ -98,7 +112,7 @@ namespace NCMBClient
             _baseInfo["X-NCMB-Timestamp"] = Time.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
             
             var sigList = new List<string>();
-            if (Queries != null)
+            if ((Method == "GET" || !_isScript) && Queries != null)
             {
                 foreach (KeyValuePair <string, JToken> key in Queries)
                 {
@@ -120,7 +134,7 @@ namespace NCMBClient
             
             var str = String.Join("\n", new[]{
                 Method,
-                Fqdn,
+                GetFqdn(),
                 GetPath(),
                 queryString
             });
